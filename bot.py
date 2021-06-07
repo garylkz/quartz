@@ -10,10 +10,10 @@ open('creds.json', 'w').write(requests.get(os.environ['link']).text)
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
 service = build('sheets', 'v4', credentials=creds)
+sheet = service.spreadsheets().values()
 os.remove('creds.json')
 
 # variables
-sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 cardNameList = sheet.get(spreadsheetId=qct,range='Card List!C:C').execute().get('values', [])
 cardColList = sheet.get(spreadsheetId=qct,range='Card List!A:A').execute().get('values', [])
