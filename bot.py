@@ -15,8 +15,8 @@ os.remove('creds.json')
 # variables
 sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
-cardNameList = sheet.get(spreadsheetId=qct,range="Card List!C:C").execute().get('values', [])
-cardColList = sheet.get(spreadsheetId=qct,range="Card List!A:A").execute().get('values', [])
+cardNameList = sheet.get(spreadsheetId=qct,range='Card List!C:C').execute().get('values', [])
+cardColList = sheet.get(spreadsheetId=qct,range='Card List!A:A').execute().get('values', [])
 
 bot = commands.Bot('')
 
@@ -30,33 +30,33 @@ async def on_message(ctx):
 			await ctx.send('Card data exists')
 		else:
 			# card section
-			data = {"majorDimension":"ROWS", "values": [card]}
-			append("Card List!A:Z", data) # line 48
+			data = {'majorDimension':'ROWS', 'values': [card]}
+			append('Card List!A:Z', data) # line 48
 			# changelog section
-			append("Changelog!A:A", card[2])
+			append('Changelog!A:A', card[2])
 			# fusion section
-			if card[3] == "fusion":
-				append("Fusion!A:A", card[2])
+			if card[3] == 'fusion':
+				append('Fusion!A:A', card[2])
 			# new collection?
 			if any(card[1] in i for i in cardColList):
-				append("Collection!A:A", card[1])
+				append('Collection!A:A', card[1])
 				await ctx.send('New Collection!')
-			await ctx.send("Card data added") # success
+			await ctx.send('Card data added') # success
 
 def cardInfo(embed):
-	row = str(len(cardNameList+1) # new row
+	row = str(len(cardNameList+1)) # new row
 
-	model = embed.title.split(' ')[0] # card model number
+	model = embed.title.split()[0] # card model number
 
 	raritype = embed.fields[0].value
-	rarity = raritype.replace("Limited ", "")
+	rarity = raritype.replace('Limited ', '')
 	if 'Limited' in raritype: ctype = 'Limited'
 	else: ctype = ''
 
 	card = [
-		"=VLOOKUP(B"+row+", Collection!A:B, 2, false)", # 0. album formula
+		'=VLOOKUP(B'+row+', Collection!A:B, 2, false)', # 0. album formula
 		embed.footer.text, # 1. collection
-		embed.title.replace(model+" ", ""), # 2. name
+		embed.title.replace(model+' ', ''), # 2. name
 		rarity, # 3. rarity
 		ctype, # 4. type
 		embed.fields[1].value, # 5. cost
@@ -64,7 +64,7 @@ def cardInfo(embed):
 		'=IF(F'+row+'=0,"∞",ROUNDDOWN(G'+row+'/F'+row+',0))', #7. ppe formula
 		embed.fields[3].name + " - " + embed.fields[3].value, # 8. ability formula
 		model, # 9. model
-		"=VLOOKUP(C"+row+", Changelog!A:B, 2, false)"] # 10. date formula
+		'=VLOOKUP(C'+row+', Changelog!A:B, 2, false)'] # 10. date formula
 
 	return card
 
