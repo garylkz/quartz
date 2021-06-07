@@ -71,4 +71,4 @@ def cardInfo(embed):
 def append(range, data):
 	sheet.append(spreadsheetId=qct, range=range, body=data, valueInputOption="USER_ENTERED").execute()
 
-bot.run(os.getenv('TOKEN'))
+bot.run(os.environ['TOKEN'])
