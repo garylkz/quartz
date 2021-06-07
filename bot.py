@@ -27,7 +27,7 @@ async def on_message(ctx):
 		card = cardInfo(embed)
 
 		if any(card[2] in i for i in cardNameList):
-			await ctx.send('Card data exists')
+			await ctx.channel.send('Card data exists')
 		else:
 			# card section
 			data = {'majorDimension':'ROWS', 'values': [card]}
@@ -40,8 +40,8 @@ async def on_message(ctx):
 			# new collection?
 			if any(card[1] in i for i in cardColList):
 				append('Collection!A:A', card[1])
-				await ctx.send('New Collection!')
-			await ctx.send('Card data added') # success
+				await ctx.channel.send('New Collection!')
+			await ctx.channel.send('Card data added') # success
 
 def cardInfo(embed):
 	row = str(len(cardNameList)+1) # new row
@@ -65,7 +65,6 @@ def cardInfo(embed):
 		embed.fields[3].name + " - " + embed.fields[3].value, # 8. ability formula
 		model, # 9. model
 		'=VLOOKUP(C'+row+', Changelog!A:B, 2, false)'] # 10. date formula
-
 	return card
 
 def append(range, data):
