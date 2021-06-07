@@ -1,1 +1,1 @@
-# discord-card-logging-bot
+# card-bot
