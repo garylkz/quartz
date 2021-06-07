@@ -44,7 +44,7 @@ async def on_message(ctx):
 			await ctx.send('Card data added') # success
 
 def cardInfo(embed):
-	row = str(len(cardNameList+1)) # new row
+	row = str(len(cardNameList)+1) # new row
 
 	model = embed.title.split()[0] # card model number
 
