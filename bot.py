@@ -22,52 +22,51 @@ bot = commands.Bot('')
 
 @bot.event
 async def on_message(ctx):
-	for embed in ctx.embeds: # detect embed
-		#print(embed.to_dict()) # debug
-		card = cardInfo(embed)
-
-		if any(card[2] in i for i in cardNameList):
-			await ctx.channel.send('Card data exists')
-		else:
-			# card section
-			data = {'majorDimension':'ROWS', 'values': [card]}
-			append('Card List!A:Z', data) # line 48
-			# changelog section
-			append('Changelog!A:A', card[2])
-			# fusion section
-			if card[3] == 'fusion':
-				append('Fusion!A:A', card[2])
-			# new collection?
-			if any(card[1] in i for i in cardColList):
-				append('Collection!A:A', card[1])
-				await ctx.channel.send('New Collection!')
-			await ctx.channel.send('Card data added') # success
+    for embed in ctx.embeds: # detect embed
+        #print(embed.to_dict()) # debug
+        card = cardInfo(embed)
+        if any(card[2] in i for i in cardNameList):
+            await ctx.channel.send('Card data exists')
+        else:
+            # card section
+            data = {
+                    'majorDimension':'ROWS', 
+                    'values': [card]}
+            append('Card List!A:Z', data) # line 48
+            await ctx.channel.send('card added')
+            # changelog section
+	    append('Changelog!A:A', card[2])
+            # fusion section
+            if card[3] == 'fusion':
+                append('Fusion!A:A', card[2])
+            # new collection?
+            if any(card[1] in i for i in cardColList):
+                append('Collection!A:A', card[1])
+                await ctx.channel.send(card[1])
+            await ctx.channel.send('Card data added')
 
 def cardInfo(embed):
-	row = str(len(cardNameList)+1) # new row
-
-	model = embed.title.split()[0] # card model number
-
-	raritype = embed.fields[0].value
-	rarity = raritype.replace('Limited ', '')
-	if 'Limited' in raritype: ctype = 'Limited'
-	else: ctype = ''
-
-	card = [
-		'=VLOOKUP(B'+row+', Collection!A:B, 2, false)', # 0. album formula
-		embed.footer.text, # 1. collection
-		embed.title.replace(model+' ', ''), # 2. name
-		rarity, # 3. rarity
-		ctype, # 4. type
-		embed.fields[1].value, # 5. cost
-		embed.fields[2].value, # 6. power
-		'=IF(F'+row+'=0,"∞",ROUNDDOWN(G'+row+'/F'+row+',0))', #7. ppe formula
-		embed.fields[3].name + " - " + embed.fields[3].value, # 8. ability formula
-		model, # 9. model
-		'=VLOOKUP(C'+row+', Changelog!A:B, 2, false)'] # 10. date formula
-	return card
+    row = str(len(cardNameList)+1) # new row
+    model = embed.title.split()[0] # card model number
+    raritype = embed.fields[0].value
+    rarity = raritype.replace('Limited ', '')
+    if 'Limited' in raritype: ctype = 'Limited'
+    else: ctype = ''
+    card = [
+            '=VLOOKUP(B'+row+', Collection!A:B, 2, false)', # 0. album formula
+            embed.foot9er.text, # 1. collection
+            embed.title.replace(model+' ', ''), # 2. name
+            rarity, # 3. rarity
+            ctype, # 4. type
+            embed.fields[1].value, # 5. cost
+            embed.fields[2].value, # 6. power
+            '=IF(F'+row+'=0,"∞",ROUNDDOWN(G'+row+'/F'+row+',0))', #7. ppe formula
+            embed.fields[3].name + " - " + embed.fields[3].value, # 8. ability formula
+            model, # 9. model
+            '=VLOOKUP(C'+row+', Changelog!A:B, 2, false)'] # 10. date formula
+    return card
 
 def append(range, data):
-	sheet.append(spreadsheetId=qct, range=range, body=data, valueInputOption="USER_ENTERED").execute()
+    sheet.append(spreadsheetId=qct, range=range, body=data, valueInputOption="USER_ENTERED").execute()
 
 bot.run(os.environ['TOKEN'])
