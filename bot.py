@@ -67,6 +67,10 @@ def cardInfo(embed):
             '=VLOOKUP(C'+row+', Changelog!A:B, 2, false)'] # 10. date formula
     return card
 
+@bot.command()
+async def ping(ctx):
+    await ctx.send('pong')
+
 def append(range, data):
     sheet.append(spreadsheetId=qct, range=range, body=data, valueInputOption="USER_ENTERED").execute()
 
