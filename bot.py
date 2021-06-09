@@ -44,6 +44,7 @@ async def on_message(ctx):
                 append('Collection!A:A', card[1])
                 await ctx.channel.send(card[1])
             await ctx.channel.send('Card data added')
+    await bot.process_commands(ctx)
 
 def cardInfo(embed):
     row = str(len(cardNameList)+1) # new row
