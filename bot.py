@@ -18,7 +18,7 @@ qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 cardNameList = sheet.get(spreadsheetId=qct,range='Card List!C:C').execute().get('values', [])
 cardColList = sheet.get(spreadsheetId=qct,range='Card List!A:A').execute().get('values', [])
 
-bot = commands.Bot('')
+bot = commands.Bot(',')
 
 @bot.event
 async def on_message(ctx):
@@ -55,7 +55,7 @@ def cardInfo(embed):
     else: ctype = ''
     card = [
             '=VLOOKUP(B'+row+', Collection!A:B, 2, false)', # 0. album formula
-            embed.foot9er.text, # 1. collection
+            embed.footer.text, # 1. collection
             embed.title.replace(model+' ', ''), # 2. name
             rarity, # 3. rarity
             ctype, # 4. type
