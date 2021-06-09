@@ -35,7 +35,7 @@ async def on_message(ctx):
             append('Card List!A:Z', data) # line 48
             await ctx.channel.send('card added')
             # changelog section
-	    append('Changelog!A:A', card[2])
+            append('Changelog!A:A', card[2])
             # fusion section
             if card[3] == 'fusion':
                 append('Fusion!A:A', card[2])
