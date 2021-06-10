@@ -61,7 +61,7 @@ class qct(commands.Cog):
         for embed in ctx.embeds:
             #print(embed.to_dict()) # debug
             card = embed_card(embed)
-            if card[2] in sheet_get(clist+'C:C'):
+            if card[2] in sheet_get(f'{clist}C:C'):
                 await ctx.channel.send('data exists')
                 continue
             body = {
