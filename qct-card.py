@@ -63,8 +63,7 @@ class qct(commands.Cog):
         for embed in ctx.embeds:
             #print(embed.to_dict())
             card = embed_card(embed)
-            await ctx.channel.send(card)
-            await ctx.channel.send(getcardname)
+            await ctx.channel.send(getcardname[0:10])
             if card[2] in getcardname:
                 await ctx.channel.send('data exists')
                 break
