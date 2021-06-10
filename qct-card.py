@@ -24,11 +24,11 @@ colname = "Collection!A:A"
 loglist = "Changelog!A:B"
 fusename = "Fusion!A:A"
 
-def sheet_append(range, body):
-    sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED").execute()
+def sheet_append(r, b):
+    sheet.append(spreadsheetId=qct, range=r, body=b, valueInputOption="USER_ENTERED").execute()
 
-def sheet_get(range):
-    return sheet.get(spreadsheetId=qct, range=range).execute().get('values', [])
+def sheet_get(r):
+    return sheet.get(spreadsheetId=qct, range=r).execute().get('values', [])
 
 getcardname = sheet_get(cardname)
 getcolname = sheet_get(colname)
@@ -43,7 +43,7 @@ def embed_card(embed):
     card = [
             f'=VLOOKUP(B{row}, {collist}, 2, false)',
             embed.footer.text, # 1. collection
-            embed.title.replace(model+' ', ''), #2. name
+            embed.title.replace(model+' ', 'test'), #2. name
             rarity, # 3. rarity
             ctype, # 4. card type
             embed.fields[1].value, # 5. cost
@@ -69,7 +69,7 @@ class qct(commands.Cog):
             body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
-            sheet_append(cardlist, body)
+            sheet_append("Card List!A:Z", body)
             body['values'] = [[card[2], str(date.today())]]
             sheet_append(loglist, body)
             if 'Fusion' in card[3]:
