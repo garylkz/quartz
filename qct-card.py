@@ -55,7 +55,6 @@ def embed_card(embed):
 class qct(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.append = sheet_append()
     
     @commands.Cog.listener()
     async def on_message(self, ctx):
