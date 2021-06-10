@@ -1,5 +1,5 @@
 import os, requests
-from datetime.date import today
+from datetime import date
 from discord.ext import commands
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
@@ -72,7 +72,7 @@ class qct(commands.Cog):
                     'majorDimension':'ROWS', 
                     'values': [card]}
             sheet_append(card+'A:Z', data)
-            data['values'] = [[card[2], str(today())]]
+            data['values'] = [[card[2], str(date.today())]]
             sheet_append(log+'A:B', data)
             if 'Fusion' in card[3]:
                 sheet_append(fuse+'A:A', card[2])
