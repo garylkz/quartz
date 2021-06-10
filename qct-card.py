@@ -71,7 +71,7 @@ class qct(commands.Cog):
                     'values': [card]}
             sheetappend("Card List!A:Z", body)
             body['values'] = [[card[2], str(date.today())]]
-            sheet_append(loglist, body)
+            sheetappend(loglist, body)
             if 'Fusion' in card[3]:
                 sheetappend(fusename, card[2])
             if not any(card[1] in i for i in  getcolname):
