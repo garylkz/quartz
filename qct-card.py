@@ -24,16 +24,16 @@ colname = "Collection!A:A"
 loglist = "Changelog!A:B"
 fusename = "Fusion!A:A"
 
-def sheet_append(r, b):
+def sheetappend(r, b):
     sheet.append(spreadsheetId=qct, range=r, body=b, valueInputOption="USER_ENTERED").execute()
 
-def sheet_get(r):
+def sheetget(r):
     return sheet.get(spreadsheetId=qct, range=r).execute().get('values', [])
 
 getcardname = sheet_get(cardname)
 getcolname = sheet_get(colname)
 
-def embed_card(embed):
+def embedcard(embed):
     row = len(getcardname) + 1
     model = embed.title.split()[0] # card model number
     raritype = embed.fields[0].value
@@ -62,20 +62,20 @@ class qct(commands.Cog):
     async def on_message(self, ctx):
         for embed in ctx.embeds:
             #print(embed.to_dict())
-            card = embed_card(embed)
+            card = embedcard(embed)
             if any(card[2] in i for i in getcardname):
                 await ctx.channel.send('data exists')
                 continue
             body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
-            sheet_append("Card List!A:Z", body)
+            sheetappend("Card List!A:Z", body)
             body['values'] = [[card[2], str(date.today())]]
             sheet_append(loglist, body)
             if 'Fusion' in card[3]:
-                sheet_append(fusename, card[2])
+                sheetappend(fusename, card[2])
             if not any(card[1] in i for i in  getcolname):
-                sheet_append(colname, card[1])
+                sheetappend(colname, card[1])
             await ctx.channel.send('data added')
 
 def setup(bot):
