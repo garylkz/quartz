@@ -22,8 +22,11 @@ colname = "Collection!A:A"
 collist = "Collection!A:B"
 loglist = "Changelog!A:B"
 
-def sheet_get(r):
-    return sheet.get(spreadsheetId=qct, range=r).execute().get('values', [])
+def sheet_append(range, body):
+    sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED").execute()
+
+def sheet_get(range):
+    return sheet.get(spreadsheetId=qct, range=range).execute().get('values', [])
 
 getcardname = sheet_get(cardname)
 getcolname = sheet_get(colname)
@@ -55,13 +58,6 @@ class qct(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        def sheet_append(range, body):
-            sheet.append(
-                    spreadsheetId=qct,
-                    range=range,
-                    body=body,
-                    valueInputOption="USER_ENTERED").execute()
-
         for embed in ctx.embeds:
             #print(embed.to_dict())
             card = embed_card(embed)
@@ -73,7 +69,8 @@ class qct(commands.Cog):
                     'values': [card]}
             sheet_append('Card List!A:Z', body)
             body['values'] = [[card[2], str(date.today())]]
-            sheet_append('Changelog!A:B', body)
+            sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED").execute()
+            #sheet_append('Changelog!A:B', body)
             if 'Fusion' in card[3]:
                 sheet_append('Fusion!A:A', [card[2]])
             if not any(card[1] in i for i in  getcolname):
@@ -82,3 +79,4 @@ class qct(commands.Cog):
 
 def setup(bot):
     bot.add_cog(qct(bot))
+
