@@ -19,6 +19,8 @@ os.remove('creds.json')
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 cardname = "Card List!C:C"
 colname = "Collection!A:A"
+collist = "Collection!A:B"
+loglist = "Changelog!A:B"
 
 def sheet_get(r):
     return sheet.get(spreadsheetId=qct, range=r).execute().get('values', [])
@@ -70,7 +72,7 @@ class qct(commands.Cog):
             body['values'] = [[card[2], str(date.today())]]
             sheet.append(
                     spreadsheetId=qct, 
-                    range='Changelog!A:B', 
+                    range=loglist, 
                     body=body,
                     valueInputOption="USER_ENTERED").execute()
             if 'Fusion' in card[3]:
