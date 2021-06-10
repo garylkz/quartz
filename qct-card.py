@@ -19,6 +19,7 @@ sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 cardlist = 'Card List!A:Z'
 cardname = 'Card List!C:C'
+collist = 'Collection!A:B'
 colname = 'Collection!A:A'
 fuse = 'Fusion!A:A'
 log = 'Changelog!A:B'
@@ -40,7 +41,7 @@ def embed_card(embed):
     ctype = ''
     if 'Limited' in raritype: ctype = 'Limited'
     card = [
-            f'=VLOOKUP(B{row}, {col}A:B, 2, false)',
+            f'=VLOOKUP(B{row}, {collist}, 2, false)',
             embed.footer.text, # 1. collection
             embed.title.replace(model+' ', ''), #2. name
             rarity, # 3. rarity
@@ -50,7 +51,7 @@ def embed_card(embed):
             f'=IF(F{row}=0,"∞",ROUNDDOWN(G{row}/F{row},0))',
             f'{embed.fields[3].name} - {embed.fields[3].value}',
             model, # 9. card model number
-            f'=VLOOKUP(C{row}, {log}A:B, 2, false)']
+            f'=VLOOKUP(C{row}, {log}, 2, false)']
     return card
 
 class qct(commands.Cog):
