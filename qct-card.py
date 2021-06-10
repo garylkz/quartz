@@ -13,16 +13,16 @@ scope = [
         'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
 service = build('sheets', 'v4', credentials=creds)
+sheet = service.spreadsheets().values()
 os.remove('creds.json')
 
-sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
-cardlist = 'Card List!A:Z'
-cardname = 'Card List!C:C'
-collist = 'Collection!A:B'
-colname = 'Collection!A:A'
-loglist = 'Changelog!A:B'
-fusename = 'Fusion!A:A'
+cardlist = "Card List!A:Z"
+cardname = "Card List!C:C"
+collist = "Collection!A:B"
+colname = "Collection!A:A"
+loglist = "Changelog!A:B"
+fusename = "Fusion!A:A"
 
 def sheet_append(range, body):
     sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED").execute()
@@ -63,9 +63,9 @@ class qct(commands.Cog):
         for embed in ctx.embeds:
             #print(embed.to_dict())
             card = embed_card(embed)
-            if any(card[2] in i for i in  getcardname):
+            if any(card[2] in i for i in getcardname):
                 await ctx.channel.send('data exists')
-                break
+                continue
             body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
