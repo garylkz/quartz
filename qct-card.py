@@ -35,7 +35,11 @@ def sheet_get(r):
             range=r).execute().get('values', [])
 
 def embed_card(embed):
-    row = len(sheet_get('Card List!A:A')) + 1
+    x = sheet.get(
+            spreadsheetId=qct,
+            range='Card List!A:A').execute().get('values', [])
+
+    row = len(x) + 1
     model = embed.title.split()[0] # card model number
     raritype = embed.fields[0].value
     rarity = raritype.replace('Limited ', '')
