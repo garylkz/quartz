@@ -68,7 +68,6 @@ class qct(commands.Cog):
             if card[2] in getcardname:
                 await ctx.channel.send('data exists')
                 break
-            else:
             body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
