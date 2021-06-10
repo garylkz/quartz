@@ -67,7 +67,7 @@ class qct(commands.Cog):
             body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
-            sheet.append(spreadsheetId=qct, range='Card List!A:Z', body=body, valueInputOption="USER_ENTERED").execute()
+            sheet.append(spreadsheetId=qct, range='Introduction!A:Z', body=body, valueInputOption="USER_ENTERED").execute()
             #sheet_append('Card List!A:Z', body)
             body['values'] = [[card[2], str(date.today())]]
             sheet_append('Changelog!A:B', body)
