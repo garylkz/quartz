@@ -72,9 +72,9 @@ class qct(commands.Cog):
             body['values'] = [[card[2], str(date.today())]]
             sheet_append('Changelog!A:B', body)
             if 'Fusion' in card[3]:
-                sheet_append('Fusion!A:A', card[2])
+                sheet_append('Fusion!A:A', [card[2]])
             if not any(card[1] in i for i in  getcolname):
-                sheet_append('Collection!A:A', card[1])
+                sheet_append('Collection!A:A', [card[1]])
             await ctx.channel.send('data added')
 
 def setup(bot):
