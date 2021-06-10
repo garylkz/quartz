@@ -67,10 +67,10 @@ class qct(commands.Cog):
             body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
-            sheet_append('Card List!A:Z', body)
-            body['values'] = [[card[2], str(date.today())]]
             sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED").execute()
-            #sheet_append('Changelog!A:B', body)
+            #sheet_append('Card List!A:Z', body)
+            body['values'] = [[card[2], str(date.today())]]
+            sheet_append('Changelog!A:B', body)
             if 'Fusion' in card[3]:
                 sheet_append('Fusion!A:A', [card[2]])
             if not any(card[1] in i for i in  getcolname):
