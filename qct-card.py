@@ -22,8 +22,20 @@ col = 'Collection!'
 fuse = 'Fusion!'
 log = 'Changelog!'
 
+def sheet_append(range, data):
+    sheet.append(
+            spreadsheetId=qct, 
+            range=range, 
+            body=data, 
+            valueInputOption="USER_ENTERED").execute()
+
+def sheet_get(range):
+    return sheet.get(
+            spreadsheetId=qct,
+            range=range).execute().get('values', [])
+
 def embed_card(embed):
-    row = len(cardNameList) + 1
+    row = len(sheet_get(card+'A:A')) + 1
     model = embed.title.split()[0] # card model number
     raritype = embed.fields[0].value
     rarity = raritype.replace('Limited ', '')
@@ -42,18 +54,6 @@ def embed_card(embed):
             model, # 9. card model number
             f'=VLOOKUP(C{row}, {log}A:B, 2, false)']
     return card
-
-def sheet_append(range, data):
-    sheet.append(
-            spreadsheetId=qct, 
-            range=range, 
-            body=data, 
-            valueInputOption="USER_ENTERED").execute()
-
-def sheet_get(range):
-    return sheet.get(
-            spreadsheetId=qct,
-            range=range).execute().get('values', [])
 
 class qct(commands.Cog):
     def __init__(self, bot):
