@@ -27,6 +27,8 @@ fusename = "Fusion!A:A"
 def sheetappend(r, b):
     sheet.append(spreadsheetId=qct, range=r, body=b, valueInputOption="USER_ENTERED").execute()
 
+sheet.append(spreadsheetId=qct, range='Card List!A:B', body={'majorDimension':'ROWS', 'values':[['test']]}, valueInputOption="USER_ENTERED").execute()
+
 def sheetget(r):
     return sheet.get(spreadsheetId=qct, range=r).execute().get('values', [])
 
