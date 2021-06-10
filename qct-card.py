@@ -30,8 +30,8 @@ def sheetappend(r, b):
 def sheetget(r):
     return sheet.get(spreadsheetId=qct, range=r).execute().get('values', [])
 
-getcardname = sheet_get(cardname)
-getcolname = sheet_get(colname)
+getcardname = sheetget(cardname)
+getcolname = sheetget(colname)
 
 def embedcard(embed):
     row = len(getcardname) + 1
