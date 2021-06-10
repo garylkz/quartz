@@ -82,5 +82,5 @@ class qct(commands.Cog):
 
 
 def setup(bot):
-    bot.add_listener(on_message)
+    bot.add_cog(qct(bot))
 
