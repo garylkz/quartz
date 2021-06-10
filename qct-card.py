@@ -17,7 +17,7 @@ os.remove('creds.json')
 
 sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
-card = 'Card List!'
+clist = 'Card List!'
 col = 'Collection!'
 fuse = 'Fusion!'
 log = 'Changelog!'
@@ -35,7 +35,7 @@ def sheet_get(range):
             range=range).execute().get('values', [])
 
 def embed_card(embed):
-    row = len(sheet_get(card+'A:A')) + 1
+    row = len(sheet_get(clist+'A:A')) + 1
     model = embed.title.split()[0] # card model number
     raritype = embed.fields[0].value
     rarity = raritype.replace('Limited ', '')
@@ -65,13 +65,13 @@ class qct(commands.Cog):
         for embed in ctx.embeds:
             #print(embed.to_dict()) # debug
             card = embed_card(embed)
-            if card[2] in sheet_get(card+'C:C'):
+            if card[2] in sheet_get(clist+'C:C'):
                 await ctx.channel.send('data exists')
                 continue
             data = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
-            sheet_append(card+'A:Z', data)
+            sheet_append(clist+'A:Z', data)
             data['values'] = [[card[2], str(date.today())]]
             sheet_append(log+'A:B', data)
             if 'Fusion' in card[3]:
