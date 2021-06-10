@@ -17,26 +17,21 @@ os.remove('creds.json')
 
 sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
-clist = '"Card List"!'
+clist = 'Card List!'
 col = 'Collection!'
 fuse = 'Fusion!'
 log = 'Changelog!'
-getcardname = sheet.get(spreadsheetId=qct, range='"Card List"!A:A').execute().get('values', [])
 
 def sheet_append(range, body):
-    sheet.append(
-            spreadsheetId=qct, 
-            range=range, 
-            body=body, 
-            valueInputOption="USER_ENTERED").execute()
+    sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED").execute()
 
-def sheet_get(r):
-    return sheet.get(
-            spreadsheetId=qct,
-            range=r).execute().get('values', [])
+def sheet_get(range):
+    return sheet.get(spreadsheetId=qct, range=range).execute().get('values', [])
+
+getcardname = sheet_get('Card List!C:C')
 
 def embed_card(embed):
-    row = len(getcardlist) + 1
+    row = len(getcardname) + 1
     model = embed.title.split()[0] # card model number
     raritype = embed.fields[0].value
     rarity = raritype.replace('Limited ', '')
