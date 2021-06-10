@@ -17,25 +17,16 @@ sheet = service.spreadsheets().values()
 os.remove('creds.json')
 
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
-cardlist = "Card List!A:Z"
 cardname = "Card List!C:C"
-collist = "Collection!A:B"
 colname = "Collection!A:A"
-loglist = "Changelog!A:B"
-fusename = "Fusion!A:A"
 
-def sheetappend(r, b):
-    sheet.append(spreadsheetId=qct, range=r, body=b, valueInputOption="USER_ENTERED").execute()
-
-sheet.append(spreadsheetId=qct, range='Card List!A:B', body={'majorDimension':'ROWS', 'values':[['test']]}, valueInputOption="USER_ENTERED").execute()
-
-def sheetget(r):
+def sheet_get(r):
     return sheet.get(spreadsheetId=qct, range=r).execute().get('values', [])
 
-getcardname = sheetget(cardname)
-getcolname = sheetget(colname)
+getcardname = sheet_get(cardname)
+getcolname = sheet_get(colname)
 
-def embedcard(embed):
+def embed_card(embed):
     row = len(getcardname) + 1
     model = embed.title.split()[0] # card model number
     raritype = embed.fields[0].value
@@ -64,20 +55,36 @@ class qct(commands.Cog):
     async def on_message(self, ctx):
         for embed in ctx.embeds:
             #print(embed.to_dict())
-            card = embedcard(embed)
+            card = embed_card(embed)
             if any(card[2] in i for i in getcardname):
                 await ctx.channel.send('data exists')
                 continue
             body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
-            sheetappend("Card List!A:Z", body)
+            sheet.append(
+                    spreadsheetId=qct, 
+                    range='Card List!A:Z', 
+                    body=body,
+                    valueInputOption="USER_ENTERED").execute()
             body['values'] = [[card[2], str(date.today())]]
-            sheetappend(loglist, body)
+            sheet.append(
+                    spreadsheetId=qct, 
+                    range='Changelog!A:B', 
+                    body=body,
+                    valueInputOption="USER_ENTERED").execute()
             if 'Fusion' in card[3]:
-                sheetappend(fusename, card[2])
+                sheet.append(
+                        spreadsheetId=qct, 
+                        range='Fusion!A:A', 
+                        body=card[2],
+                        valueInputOption="USER_ENTERED").execute()
             if not any(card[1] in i for i in  getcolname):
-                sheetappend(colname, card[1])
+                sheet.append(
+                        spreadsheetId=qct, 
+                        range='Collection!A:A', 
+                        body=card[1],
+                        valueInputOption="USER_ENTERED").execute()
             await ctx.channel.send('data added')
 
 def setup(bot):
