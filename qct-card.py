@@ -63,8 +63,7 @@ class qct(commands.Cog):
         for embed in ctx.embeds:
             #print(embed.to_dict())
             card = embed_card(embed)
-            await ctx.channel.send(getcardname[0:10])
-            if card[2] in getcardname:
+            if any(card[2] in i for i in  getcardname):
                 await ctx.channel.send('data exists')
                 break
             body = {
@@ -75,7 +74,7 @@ class qct(commands.Cog):
             sheet_append(loglist, body)
             if 'Fusion' in card[3]:
                 sheet_append(fusename, card[2])
-            if card[1] not in getcolname:
+            if not any(card[1] in i for i in  getcolname):
                 sheet_append(colname, card[1])
             await ctx.channel.send('data added')
 
