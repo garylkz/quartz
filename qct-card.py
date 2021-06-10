@@ -22,8 +22,8 @@ colname = "Collection!A:A"
 collist = "Collection!A:B"
 loglist = "Changelog!A:B"
 
-def sheet_append(range, body):
-    sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED").execute()
+range, body = '', ''
+append = sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED")
 
 def sheet_get(range):
     return sheet.get(spreadsheetId=qct, range=range).execute().get('values', [])
@@ -33,7 +33,7 @@ getcolname = sheet_get(colname)
 
 def embed_card(embed):
     row = len(getcardname) + 1
-    model = embed.title.split()[0] # card model number
+    model = embed.title.split()[0]
     raritype = embed.fields[0].value
     rarity = raritype.replace('Limited ', '')
     ctype = ''
@@ -52,25 +52,34 @@ def embed_card(embed):
             f'=VLOOKUP(C{row}, {loglist}, 2, false)']
     return card
 
-@commands.listener()
-async def on_message(self, ctx):
-    for embed in ctx.embeds:
-        #print(embed.to_dict())
-        card = embed_card(embed)
-        if any(card[2] in i for i in getcardname):
-            await ctx.channel.send('data exists')
-            continue
-        body = {
-                'majorDimension':'ROWS', 
-                'values': [card]}
-        sheet_append('Card List!A:Z', body)
-        body['values'] = [[card[2], str(date.today())]]
-        sheet_append('Changelog!A:B', body)
-        if 'Fusion' in card[3]:
-            sheet_append('Fusion!A:A', [card[2]])
-        if not any(card[1] in i for i in  getcolname):
-            sheet_append('Collection!A:A', [card[1]])
-        await ctx.channel.send('data added')
+
+class qct(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.Cog.listener()
+    async def on_message(self, ctx):
+        for embed in ctx.embeds:
+            #print(embed.to_dict())
+            card = embed_card(embed)
+            if any(card[2] in i for i in getcardname):
+                await ctx.channel.send('data exists')
+                continue
+            global range, body
+            range = 'Card List!A:Z'
+            body = {
+                    'majorDimension':'ROWS', 
+                    'values': [card]}
+            append.execute()
+            range = 'Changelog!A:B'
+            body['values'] = [[card[2], str(date.today())]]
+            append.execute()
+            if 'Fusion' in card[3]: pass
+                #sheet_append('Fusion!A:A', [card[2]])
+            if not any(card[1] in i for i in  getcolname): pass
+                #sheet_append('Collection!A:A', [card[1]])
+            await ctx.channel.send('data added')
+
 
 def setup(bot):
     bot.add_listener(on_message)
