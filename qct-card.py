@@ -17,17 +17,17 @@ os.remove('creds.json')
 
 sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
-clist = 'Card List!'
+clist = '"Card List"!'
 col = 'Collection!'
 fuse = 'Fusion!'
 log = 'Changelog!'
-getcardlist = sheet.get(spreadsheetId=qct, range='Card List!A:A').execute().get('values', [])
+getcardname = sheet.get(spreadsheetId=qct, range='"Card List"!A:A').execute().get('values', [])
 
-def sheet_append(r, data):
+def sheet_append(range, body):
     sheet.append(
             spreadsheetId=qct, 
-            range=r, 
-            body=data, 
+            range=range, 
+            body=body, 
             valueInputOption="USER_ENTERED").execute()
 
 def sheet_get(r):
@@ -69,12 +69,12 @@ class qct(commands.Cog):
             if card[2] in sheet_get(clist+'C:C'):
                 await ctx.channel.send('data exists')
                 continue
-            data = {
+            body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
-            sheet_append(clist+'A:Z', data)
-            data['values'] = [[card[2], str(date.today())]]
-            sheet_append(log+'A:B', data)
+            sheet_append(clist+'A:Z', body)
+            body['values'] = [[card[2], str(date.today())]]
+            sheet_append(log+'A:B', body)
             if 'Fusion' in card[3]:
                 sheet_append(fuse+'A:A', card[2])
             if card[1] not in sheet_get(col+'A:A'):
