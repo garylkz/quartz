@@ -63,21 +63,23 @@ class qct(commands.Cog):
         for embed in ctx.embeds:
             #print(embed.to_dict())
             card = embed_card(embed)
+            await ctx.channel.send(card)
+            await ctx.channel.send(getcardname)
             if card[2] in getcardname:
                 await ctx.channel.send('data exists')
                 break
             else:
-                body = {
-                        'majorDimension':'ROWS', 
-                        'values': [card]}
-                sheet_append(cardlist, body)
-                body['values'] = [[card[2], str(date.today())]]
-                sheet_append(loglist, body)
-                if 'Fusion' in card[3]:
-                    sheet_append(fusename, card[2])
-                if card[1] not in getcolname:
-                    sheet_append(colname, card[1])
-                await ctx.channel.send('data added')
+            body = {
+                    'majorDimension':'ROWS', 
+                    'values': [card]}
+            sheet_append(cardlist, body)
+            body['values'] = [[card[2], str(date.today())]]
+            sheet_append(loglist, body)
+            if 'Fusion' in card[3]:
+                sheet_append(fusename, card[2])
+            if card[1] not in getcolname:
+                sheet_append(colname, card[1])
+            await ctx.channel.send('data added')
 
 def setup(bot):
     bot.add_cog(qct(bot))
