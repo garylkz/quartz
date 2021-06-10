@@ -71,8 +71,7 @@ class qct(commands.Cog):
                 await ctx.channel.send('data exists')
                 continue
             body = {'values': [card]}
-            try: sheet_append('Card List!A:Z', body)
-            except: await ctx.channel.send('error')
+            sheet_append('Card List!A:Z', body)
             body = {'values': [[card[2], date.today()]]}
             if 'Fusion' in card[3]: pass
                 #sheet_append('Fusion!A:A', [card[2]])
