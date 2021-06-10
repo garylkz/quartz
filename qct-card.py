@@ -21,6 +21,7 @@ clist = 'Card List!'
 col = 'Collection!'
 fuse = 'Fusion!'
 log = 'Changelog!'
+getcardlist = sheet.get(spreadsheetId=qct, range='Card List!A:A').execute().get('values', [])
 
 def sheet_append(r, data):
     sheet.append(
@@ -35,9 +36,8 @@ def sheet_get(r):
             range=r).execute().get('values', [])
 
 def embed_card(embed):
-    x = sheet.get(spreadsheetId=qct, range='Card List!A:A').execute().get('values', [])
-
-    row = len(x) + 1
+    x =
+    row = len(getcardlist) + 1
     model = embed.title.split()[0] # card model number
     raritype = embed.fields[0].value
     rarity = raritype.replace('Limited ', '')
