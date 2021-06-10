@@ -22,20 +22,20 @@ col = 'Collection!'
 fuse = 'Fusion!'
 log = 'Changelog!'
 
-def sheet_append(range, data):
+def sheet_append(r, data):
     sheet.append(
             spreadsheetId=qct, 
-            range=range, 
+            range=r, 
             body=data, 
             valueInputOption="USER_ENTERED").execute()
 
-def sheet_get(range):
+def sheet_get(r):
     return sheet.get(
             spreadsheetId=qct,
-            range=range).execute().get('values', [])
+            range=r).execute().get('values', [])
 
 def embed_card(embed):
-    row = len(sheet_get(clist+'A:A')) + 1
+    row = len(sheet_get('Card List!A:A')) + 1
     model = embed.title.split()[0] # card model number
     raritype = embed.fields[0].value
     rarity = raritype.replace('Limited ', '')
