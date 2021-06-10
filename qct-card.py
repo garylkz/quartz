@@ -60,7 +60,7 @@ class qct(commands.Cog):
         self.bot = bot
     
     @commands.Cog.listener()
-    async def on_message(ctx):
+    async def on_message(self, ctx):
         await self.bot.process_commands(ctx)
         for embed in ctx.embeds:
             #print(embed.to_dict()) # debug
