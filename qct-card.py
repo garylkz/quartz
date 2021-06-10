@@ -28,7 +28,7 @@ def sheet_append(range, body):
 def sheet_get(range):
     return sheet.get(spreadsheetId=qct, range=range).execute().get('values', [])
 
-getcardname = sheet_get('Card List!C:C')
+getcardname = sheet_get(f'{clist}C:C')
 
 def embed_card(embed):
     row = len(getcardname) + 1
@@ -57,7 +57,6 @@ class qct(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        await self.bot.process_commands(ctx)
         for embed in ctx.embeds:
             #print(embed.to_dict()) # debug
             card = embed_card(embed)
