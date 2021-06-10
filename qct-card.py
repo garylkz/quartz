@@ -17,10 +17,11 @@ os.remove('creds.json')
 
 sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
-clist = 'Card List!'
-col = 'Collection!'
-fuse = 'Fusion!'
-log = 'Changelog!'
+cardlist = 'Card List!A:Z'
+cardname = 'Card List!C:C'
+colname = 'Collection!A:A'
+fuse = 'Fusion!A:A'
+log = 'Changelog!A:B'
 
 def sheet_append(range, body):
     sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED").execute()
@@ -28,7 +29,8 @@ def sheet_append(range, body):
 def sheet_get(range):
     return sheet.get(spreadsheetId=qct, range=range).execute().get('values', [])
 
-getcardname = sheet_get(f'{clist}C:C')
+getcardname = sheet_get(cardname)
+getcolname = sheet_get(colname)
 
 def embed_card(embed):
     row = len(getcardname) + 1
@@ -58,21 +60,21 @@ class qct(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, ctx):
         for embed in ctx.embeds:
-            #print(embed.to_dict()) # debug
+            #print(embed.to_dict())
             card = embed_card(embed)
-            if card[2] in sheet_get(f'{clist}C:C'):
+            if card[2] in getcardname:
                 await ctx.channel.send('data exists')
-                continue
+                break
             body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
-            sheet_append(clist+'A:Z', body)
+            sheet_append(cardlist, body)
             body['values'] = [[card[2], str(date.today())]]
-            sheet_append(log+'A:B', body)
+            sheet_append(log, body)
             if 'Fusion' in card[3]:
-                sheet_append(fuse+'A:A', card[2])
-            if card[1] not in sheet_get(col+'A:A'):
-                sheet_append(col+'A:A', card[1])
+                sheet_append(fuse, card[2])
+            if card[1] not in getcolname:
+                sheet_append(colname, card[1])
             await ctx.channel.send('data added')
 
 def setup(bot):
