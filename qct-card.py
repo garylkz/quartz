@@ -21,8 +21,8 @@ cardlist = 'Card List!A:Z'
 cardname = 'Card List!C:C'
 collist = 'Collection!A:B'
 colname = 'Collection!A:A'
-fuse = 'Fusion!A:A'
-log = 'Changelog!A:B'
+loglist = 'Changelog!A:B'
+fusename = 'Fusion!A:A'
 
 def sheet_append(range, body):
     sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED").execute()
@@ -51,7 +51,7 @@ def embed_card(embed):
             f'=IF(F{row}=0,"∞",ROUNDDOWN(G{row}/F{row},0))',
             f'{embed.fields[3].name} - {embed.fields[3].value}',
             model, # 9. card model number
-            f'=VLOOKUP(C{row}, {log}, 2, false)']
+            f'=VLOOKUP(C{row}, {loglist}, 2, false)']
     return card
 
 class qct(commands.Cog):
@@ -66,17 +66,18 @@ class qct(commands.Cog):
             if card[2] in getcardname:
                 await ctx.channel.send('data exists')
                 break
-            body = {
-                    'majorDimension':'ROWS', 
-                    'values': [card]}
-            sheet_append(cardlist, body)
-            body['values'] = [[card[2], str(date.today())]]
-            sheet_append(log, body)
-            if 'Fusion' in card[3]:
-                sheet_append(fuse, card[2])
-            if card[1] not in getcolname:
-                sheet_append(colname, card[1])
-            await ctx.channel.send('data added')
+            else:
+                body = {
+                        'majorDimension':'ROWS', 
+                        'values': [card]}
+                sheet_append(cardlist, body)
+                body['values'] = [[card[2], str(date.today())]]
+                sheet_append(loglist, body)
+                if 'Fusion' in card[3]:
+                    sheet_append(fusename, card[2])
+                if card[1] not in getcolname:
+                    sheet_append(colname, card[1])
+                await ctx.channel.send('data added')
 
 def setup(bot):
     bot.add_cog(qct(bot))
