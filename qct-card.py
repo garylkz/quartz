@@ -56,7 +56,7 @@ def sheet_get(range):
             range=range).execute().get('values', [])
 
 class qct(commands.Cog):
-    def __init__(self.bot):
+    def __init__(self, bot):
         self.bot = bot
     
     @commands.Cog.listener()
