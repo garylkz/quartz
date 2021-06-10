@@ -4,7 +4,6 @@ from discord.ext import commands
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 
-# authentication
 open('creds.json', 'w').write(requests.get(os.environ['link']).text)
 scope = [
         'https://spreadsheets.google.com/feeds',
@@ -13,17 +12,14 @@ scope = [
         'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
 service = build('sheets', 'v4', credentials=creds)
-sheet = service.spreadsheets().values()
 os.remove('creds.json')
 
+sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 cardname = "Card List!C:C"
 colname = "Collection!A:A"
 collist = "Collection!A:B"
 loglist = "Changelog!A:B"
-
-range, body = '', ''
-append = sheet.append(spreadsheetId=qct, range=range, body=body, valueInputOption="USER_ENTERED")
 
 def sheet_get(range):
     return sheet.get(spreadsheetId=qct, range=range).execute().get('values', [])
@@ -56,6 +52,15 @@ def embed_card(embed):
 class qct(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @staticmethod
+    def sheet_append(range, body):
+        sheet.append(
+                spreadsheetId=qct,
+                range=range,
+                body=body,
+                valueInputOption="USER_ENTERED").execute()
+
     
     @commands.Cog.listener()
     async def on_message(self, ctx):
@@ -65,15 +70,10 @@ class qct(commands.Cog):
             if any(card[2] in i for i in getcardname):
                 await ctx.channel.send('data exists')
                 continue
-            global range, body
-            range = 'Card List!A:Z'
-            body = {
-                    'majorDimension':'ROWS', 
-                    'values': [card]}
-            append.execute()
-            range = 'Changelog!A:B'
-            body['values'] = [[card[2], str(date.today())]]
-            append.execute()
+            body = {'values': [card]}
+            try: sheet_append('Card List!A:Z', body)
+            except: await ctx.channel.send('error')
+            body = {'values': [[card[2], date.today()]]}
             if 'Fusion' in card[3]: pass
                 #sheet_append('Fusion!A:A', [card[2]])
             if not any(card[1] in i for i in  getcolname): pass
