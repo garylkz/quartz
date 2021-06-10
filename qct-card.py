@@ -22,6 +22,9 @@ colname = "Collection!A:A"
 collist = "Collection!A:B"
 loglist = "Changelog!A:B"
 
+def sheet_append(r, b):
+    sheet.append(spreadsheetId=qct, range=r, body=b, valueInputOption="USER_ENTERED").execute()
+
 def sheet_get(r):
     return sheet.get(spreadsheetId=qct, range=r).execute().get('values', [])
 
@@ -52,6 +55,7 @@ def embed_card(embed):
 class qct(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.append = sheet_append()
     
     @commands.Cog.listener()
     async def on_message(self, ctx):
@@ -64,29 +68,13 @@ class qct(commands.Cog):
             body = {
                     'majorDimension':'ROWS', 
                     'values': [card]}
-            sheet.append(
-                    spreadsheetId=qct, 
-                    range='Card List!A:Z', 
-                    body=body,
-                    valueInputOption="USER_ENTERED").execute()
+            sheet_append('Card List!A:Z', body)
             body['values'] = [[card[2], str(date.today())]]
-            sheet.append(
-                    spreadsheetId=qct, 
-                    range=loglist, 
-                    body=body,
-                    valueInputOption="USER_ENTERED").execute()
+            sheet_append('Changelog!A:B', body)
             if 'Fusion' in card[3]:
-                sheet.append(
-                        spreadsheetId=qct, 
-                        range='Fusion!A:A', 
-                        body=card[2],
-                        valueInputOption="USER_ENTERED").execute()
+                sheet_append('Fusion!A:A', card[2])
             if not any(card[1] in i for i in  getcolname):
-                sheet.append(
-                        spreadsheetId=qct, 
-                        range='Collection!A:A', 
-                        body=card[1],
-                        valueInputOption="USER_ENTERED").execute()
+                sheet_append('Collection!A:A', card[1])
             await ctx.channel.send('data added')
 
 def setup(bot):
