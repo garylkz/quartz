@@ -46,7 +46,7 @@ def embed_card(embed):
     card = [
             f'=VLOOKUP(B{row}, {collist}, 2, false)',
             embed.footer.text, # 1. collection
-            embed.title.replace(model+' ', 'test'), #2. name
+            embed.title.replace(model+' ', ''), #2. name
             rarity, # 3. rarity
             ctype, # 4. card type
             embed.fields[1].value, # 5. cost
@@ -66,7 +66,7 @@ async def on_embed(msg):
             continue
         body = {'values': [card]}
         sheet_append(cardlist, body)
-        body['values'] = [[card[2], date.today()]]
+        body['values'] = [[card[2], str(date.today())]]
         sheet_append(loglist, body)
         if 'Fusion' in card[3]:
             sheet_append('Fusion!A:A', card[2])
