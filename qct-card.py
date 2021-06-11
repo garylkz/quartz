@@ -12,15 +12,8 @@ scope = [
         'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
 service = build('sheets', 'v4', credentials=creds)
-os.remove('creds.json')
-
 sheet = service.spreadsheets().values()
-qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
-cardlist = "Card List!A:Z"
-cardname = "Card List!C:C"
-colname = "Collection!A:A"
-collist = "Collection!A:B"
-loglist = "Changelog!A:B"
+os.remove('creds.json')
 
 def sheet_append(range, body):
     return sheet.append(
@@ -29,13 +22,17 @@ def sheet_append(range, body):
             body=body,
             valueInputOption="USER_ENTERED").execute()
 
-#sheet_append(cardlist, {'values':[['testy']]})
-
 def sheet_get(range):
     return sheet.get(
             spreadsheetId=qct,
             range=range).execute().get('values', [])
 
+qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
+cardlist = "Card List!A:Z"
+cardname = "Card List!C:C"
+colname = "Collection!A:A"
+collist = "Collection!A:B"
+loglist = "Changelog!A:B"
 getcardname = sheet_get(cardname)
 getcolname = sheet_get(colname)
 
@@ -49,7 +46,7 @@ def embed_card(embed):
     card = [
             f'=VLOOKUP(B{row}, {collist}, 2, false)',
             embed.footer.text, # 1. collection
-            embed.title.replace(model+' ', ''), #2. name
+            embed.title.replace(model+' ', 'test'), #2. name
             rarity, # 3. rarity
             ctype, # 4. card type
             embed.fields[1].value, # 5. cost
