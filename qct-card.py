@@ -22,11 +22,14 @@ colname = "Collection!A:A"
 collist = "Collection!A:B"
 loglist = "Changelog!A:B"
 
-sheet.append(
-        spreadsheetId=qct,
-        range=cardlist,
-        body={'values':[['test']]},
-        valueInputOption="USER_ENTERED").execute()
+def sheet_append(range, body):
+    return sheet.append(
+            spreadsheetId=qct,
+            range=range,
+            body=body,
+            valueInputOption="USER_ENTERED").execute()
+
+sheet_append(cardlist, {[['testy']]}
 
 def sheet_get(range):
     return sheet.get(
