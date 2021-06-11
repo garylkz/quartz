@@ -22,7 +22,7 @@ colname = "Collection!A:A"
 collist = "Collection!A:B"
 loglist = "Changelog!A:B"
 
-def sheet_append(range, body):
+async def sheet_append(range, body):
     return sheet.append(
             spreadsheetId=qct,
             range=range,
@@ -74,12 +74,12 @@ class qct(commands.Cog):
                 await ctx.channel.send('data exists')
                 continue
             body = {'values': [card]}
-            sheet_append(cardlist, body)
+            await sheet_append(cardlist, body)
             body['values'] = [[card[2], date.today()]]
             await ctx.channel.send(body)
-            if 'Fusion' in card[3]: pass
+            #if 'Fusion' in card[3]:
                 #sheet_append('Fusion!A:A', [card[2]])
-            if not any(card[1] in i for i in  getcolname): pass
+            #if not any(card[1] in i for i in  getcolname):
                 #sheet_append('Collection!A:A', [card[1]])
             await ctx.channel.send('data added')
 
