@@ -29,7 +29,7 @@ def sheet_append(range, body):
             body=body,
             valueInputOption="USER_ENTERED").execute()
 
-sheet_append(cardlist, {'values':[['testy']]})
+#sheet_append(cardlist, {'values':[['testy']]})
 
 def sheet_get(range):
     return sheet.get(
@@ -74,8 +74,9 @@ class qct(commands.Cog):
                 await ctx.channel.send('data exists')
                 continue
             body = {'values': [card]}
-            sheet_append('Card List!A:Z', body)
-            body = {'values': [[card[2], date.today()]]}
+            sheet_append(cardlist, body)
+            body['values'] = [[card[2], date.today()]]
+            await ctx.channel.send(body)
             if 'Fusion' in card[3]: pass
                 #sheet_append('Fusion!A:A', [card[2]])
             if not any(card[1] in i for i in  getcolname): pass
