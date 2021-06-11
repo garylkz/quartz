@@ -58,9 +58,7 @@ def embed_card(embed):
             f'=VLOOKUP(C{row}, {loglist}, 2, false)']
     return card
 
-@commands.command()
-async def test(ctx):
-    sheet_append('Card List!A:Z', {'values':[['test', 'test']]})
+sheet_append('Card List!A:Z', {'values':[['test', 'test']]})
 
 
 class qct(commands.Cog):
@@ -87,5 +85,4 @@ class qct(commands.Cog):
 
 def setup(bot):
     bot.add_cog(qct(bot))
-    bot.add_command(test)
 
