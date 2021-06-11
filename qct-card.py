@@ -60,31 +60,24 @@ def embed_card(embed):
             f'=VLOOKUP(C{row}, {loglist}, 2, false)']
     return card
 
-
-class qct(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-    
-    @commands.Cog.listener()
-    async def on_message(self, ctx):
-        for embed in ctx.embeds:
-            #print(embed.to_dict())
-            card = embed_card(embed)
-            if any(card[2] in i for i in getcardname):
-                await ctx.channel.send('data exists')
-                continue
-            body = {'values': [card]}
-            sheet_append(cardlist, body)
-            await ctx.channel.send(cardlist)
-            #body['values'] = [[card[2], date.today()]]
-            #sheet_append(loglist, body)
-            #if 'Fusion' in card[3]:
-                #sheet_append('Fusion!A:A', [card[2]])
-            #if not any(card[1] in i for i in  getcolname):
-                #sheet_append(colname, [card[1]])
-            await ctx.channel.send('data added')
-
+async def on_embed(msg):
+    for embed in msg.embeds:
+        #print(embed.to_dict())
+        card = embed_card(embed)
+        if any(card[2] in i for i in getcardname):
+            await msg.channel.send('data exists')
+            continue
+        body = {'values': [card]}
+        sheet_append(cardlist, body)
+        await msg.channel.send(cardlist)
+        #body['values'] = [[card[2], date.today()]]
+        #sheet_append(loglist, body)
+        #if 'Fusion' in card[3]:
+            #sheet_append('Fusion!A:A', [card[2]])
+        #if not any(card[1] in i for i in  getcolname):
+            #sheet_append(colname, [card[1]])
+        await msg.channel.send('data added')
 
 def setup(bot):
-    bot.add_cog(qct(bot))
+    bot.add_listener(on_embed, 'on_message')
 
