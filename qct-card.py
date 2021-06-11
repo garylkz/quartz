@@ -48,6 +48,10 @@ def embed_card(embed):
             f'=VLOOKUP(C{row}, {loglist}, 2, false)']
     return card
 
+@commands.command()
+async def test(ctx):
+    qct.sheet_append('Card List!A:Z', {'values':[['test', 'test']] })
+
 
 class qct(commands.Cog):
     def __init__(self, bot):
@@ -71,7 +75,7 @@ class qct(commands.Cog):
                 await ctx.channel.send('data exists')
                 continue
             body = {'values': [card]}
-            sheet_append('Card List!A:Z', body)
+            qct.sheet_append('Card List!A:Z', body)
             body = {'values': [[card[2], date.today()]]}
             if 'Fusion' in card[3]: pass
                 #sheet_append('Fusion!A:A', [card[2]])
