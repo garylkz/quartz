@@ -16,13 +16,23 @@ os.remove('creds.json')
 
 sheet = service.spreadsheets().values()
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
+cardlist = "Card List!A:Z"
 cardname = "Card List!C:C"
 colname = "Collection!A:A"
 collist = "Collection!A:B"
 loglist = "Changelog!A:B"
 
+def sheet_append(range, body):
+    sheet.append(
+            spreadsheetId=qct,
+            range=range,
+            body=body,
+            valueInputOption="USER_ENTERED").execute()
+
 def sheet_get(range):
-    return sheet.get(spreadsheetId=qct, range=range).execute().get('values', [])
+    return sheet.get(
+            spreadsheetId=qct,
+            range=range).execute().get('values', [])
 
 getcardname = sheet_get(cardname)
 getcolname = sheet_get(colname)
@@ -50,21 +60,12 @@ def embed_card(embed):
 
 @commands.command()
 async def test(ctx):
-    qct.sheet_append('Card List!A:Z', {'values':[['test', 'test']] })
+    sheet_append('Card List!A:Z', {'values':[['test', 'test']]})
 
 
 class qct(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @staticmethod
-    def sheet_append(range, body):
-        sheet.append(
-                spreadsheetId=qct,
-                range=range,
-                body=body,
-                valueInputOption="USER_ENTERED").execute()
-
     
     @commands.Cog.listener()
     async def on_message(self, ctx):
@@ -75,7 +76,7 @@ class qct(commands.Cog):
                 await ctx.channel.send('data exists')
                 continue
             body = {'values': [card]}
-            qct.sheet_append('Card List!A:Z', body)
+            sheet_append('Card List!A:Z', body)
             body = {'values': [[card[2], date.today()]]}
             if 'Fusion' in card[3]: pass
                 #sheet_append('Fusion!A:A', [card[2]])
