@@ -49,7 +49,7 @@ def embed_card(embed):
     card = [
             f'=VLOOKUP(B{row}, {collist}, 2, false)',
             embed.footer.text, # 1. collection
-            embed.title.replace(model+' ', 'test'), #2. name
+            embed.title.replace(model+' ', ''), #2. name
             rarity, # 3. rarity
             ctype, # 4. card type
             embed.fields[1].value, # 5. cost
@@ -69,13 +69,12 @@ async def on_embed(msg):
             continue
         body = {'values': [card]}
         sheet_append(cardlist, body)
-        await msg.channel.send(cardlist)
-        #body['values'] = [[card[2], date.today()]]
-        #sheet_append(loglist, body)
-        #if 'Fusion' in card[3]:
-            #sheet_append('Fusion!A:A', [card[2]])
-        #if not any(card[1] in i for i in  getcolname):
-            #sheet_append(colname, [card[1]])
+        body['values'] = [[card[2], date.today()]]
+        sheet_append(loglist, body)
+        if 'Fusion' in card[3]:
+            sheet_append('Fusion!A:A', card[2])
+        if not any(card[1] in i for i in  getcolname):
+            sheet_append(colname, card[1])
         await msg.channel.send('data added')
 
 def setup(bot):
