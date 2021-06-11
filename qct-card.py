@@ -22,12 +22,11 @@ colname = "Collection!A:A"
 collist = "Collection!A:B"
 loglist = "Changelog!A:B"
 
-def sheet_append(range, body):
-    sheet.append(
-            spreadsheetId=qct,
-            range=range,
-            body=body,
-            valueInputOption="USER_ENTERED").execute()
+sheet.append(
+        spreadsheetId=qct,
+        range=cardlist,
+        body={'values':[['test']]},
+        valueInputOption="USER_ENTERED").execute()
 
 def sheet_get(range):
     return sheet.get(
@@ -57,8 +56,6 @@ def embed_card(embed):
             model, # 9. card model number
             f'=VLOOKUP(C{row}, {loglist}, 2, false)']
     return card
-
-sheet_append('Card List!A:Z', {'values':[['test', 'test']]})
 
 
 class qct(commands.Cog):
