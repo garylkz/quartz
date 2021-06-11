@@ -29,7 +29,7 @@ def sheet_append(range, body):
             body=body,
             valueInputOption="USER_ENTERED").execute()
 
-sheet_append(cardlist, {[['testy']]}
+sheet_append(cardlist, {'values':[['testy']]})
 
 def sheet_get(range):
     return sheet.get(
