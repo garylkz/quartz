@@ -21,9 +21,8 @@ def sheet_get(range):
             range=range).execute().get('values', [])
 
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
-cardlist = "Card List!A:Z"
+cardlist = sheet_get("Card List!A:Z")
 collist = "Collection!A:B"
-getcardlist = sheet_get(cardlist)
 
 """
 card = [
@@ -42,8 +41,8 @@ card = [
 
 @commands.command()
 async def whatis(ctx, *, kwargs):
-    for i in getcardlist:
-        if kwargs in i: await ctx.send(i)
+    for card in cardlist:
+        if kwargs.lower() == i.lower(): await ctx.send(i)
 
 def setup(bot):
     bot.add_command(whatis)
