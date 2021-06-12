@@ -42,8 +42,8 @@ card = [
 
 @commands.command()
 async def whatis(ctx, *, kwargs):
-    if any(kwargs in i for i in getcardlist):
-        await ctx.send(i)
+    for i in getcardlist:
+        if kwargs in i: await ctx.send(i)
 
 def setup(bot):
     bot.add_command(whatis)
