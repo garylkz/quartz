@@ -45,7 +45,7 @@ card = [
 async def whatis(ctx, *, kwargs):
     for card in cardlist:
         if any(kwargs.lower() == info.lower() for info in card):
-            indx = card.index(info)
+            indx = cardlist.index(card)
             await ctx.send(indx)
             await ctx.send(card)
 
