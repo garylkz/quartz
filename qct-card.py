@@ -41,7 +41,7 @@ def embed_card(embed):
     model = embed.title.split()[0]
     raritype = embed.fields[0].value
     rarity = raritype.replace('Limited ', '')
-    ctype = ''
+    ctype = 'Standard'
     if 'Limited' in raritype: ctype = 'Limited'
     card = [
             f'=VLOOKUP(B{row}, {collist}, 2, false)',

@@ -41,13 +41,13 @@ card = [
         date]
 """
 
-@commands.command(aliases=['what is', 'whats'])
+@commands.command(aliases=['whats'])
 async def whatis(ctx, *, kwargs):
     for card in cardlist:
         if any(kwargs.lower() == info.lower() for info in card):
             indx = cardlist.index(card)
-            await ctx.send(indx)
             await ctx.send(card)
+            await ctx.send(cardablt[indx])
 
 def setup(bot):
     bot.add_command(whatis)
