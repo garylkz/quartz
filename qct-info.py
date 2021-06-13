@@ -46,7 +46,7 @@ async def whatis(ctx, *, kwargs):
         if any(kwargs.lower() == info.lower() for info in card):
             await ctx.send(card)
             for name in namelist:
-                if name in card[8]:
+                if name[0] in card[8]:
                     await ctx.send('Target Card: True')
 
 def setup(bot):
