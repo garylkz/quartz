@@ -23,7 +23,7 @@ def sheet_get(range):
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 cardlist = sheet_get("Card List!A:Z")
 namelist = sheet_get("Card List!C:C")
-collist = "Collection!A:B"
+collist = sheet_get"Collection!A:B")
 
 """
 card = [
@@ -45,12 +45,17 @@ async def whatis(ctx, *, kwargs):
     for card in cardlist:
         if any(kwargs.lower() == info.lower() for info in card):
             await ctx.send(card)
-            targetcard, targetcol, target
-            if any(i[0] in card[8] for i in namelist):
-                targetcard = True
+            targetcard, targetcol, targetalb = False, False, False
+            if any(i[1] in card[8] for i in collist): targetalb = True
+            if any(i[0] in card[8] for i in collist): targetcol = True
+            if any(i[0] in card[8] for i in namelist): targetcard = True
             await ctx.send(f'''
+```
 Scope
-Card: {targetcard}     
+Album: {targetalb}
+Collection: {targetcol}
+Card: {targetcard}
+```
                     ''')
 
 def setup(bot):
