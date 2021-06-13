@@ -50,5 +50,5 @@ async def whatis(ctx, *, kwargs):
             await ctx.send(card)
 
 def setup(bot):
-    bot.add_command(info)
+    bot.add_command(whatis)
 
