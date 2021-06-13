@@ -23,7 +23,7 @@ def sheet_get(range):
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 cardlist = sheet_get("Card List!A:Z")
 namelist = sheet_get("Card List!C:C")
-collist = sheet_get"Collection!A:B")
+collist = sheet_get("Collection!A:B")
 
 """
 card = [
