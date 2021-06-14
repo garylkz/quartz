@@ -23,9 +23,9 @@ def scope_check(album='-', collection='-', named='-'):
     scope = f'''
     Scope
     ```
-    Album: {album}
-    Collection: {collection}
-    Card (Named): {named}
+Album: {album}
+Collection: {collection}
+Card (Named): {named}```
     '''
     return scope
 
