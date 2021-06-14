@@ -1,5 +1,4 @@
 import os, requests
-from datetime import date
 from discord.ext import commands
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
@@ -35,6 +34,7 @@ card = [
         cost,
         power,
         ppe,
+        ability name,
         ability,
         model,
         date]
@@ -46,15 +46,15 @@ async def whatis(ctx, *, kwargs):
         if any(kwargs.lower() == info.lower() for info in card):
             await ctx.send(card)
             targetcard, targetcol, targetalb = False, False, False
-            if any(i[1] in card[8] for i in collist): targetalb = True
-            if any(i[0] in card[8] for i in collist): targetcol = True
-            if any(i[0] in card[8] for i in namelist): targetcard = True
+            if any(i[1] in card[9] for i in collist): targetalb = True
+            if any(i[0] in card[9] for i in collist): targetcol = True
+            if any(i[0] in card[9] for i in namelist): targetcard = True
             await ctx.send(f'''
 ```
 Scope
 Album: {targetalb}
 Collection: {targetcol}
-Card: {targetcard}
+Card (specific): {targetcard}
 ```
                     ''')
 

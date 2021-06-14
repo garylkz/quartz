@@ -33,27 +33,29 @@ cardname = "Card List!C:C"
 colname = "Collection!A:A"
 collist = "Collection!A:B"
 loglist = "Changelog!A:B"
+
 getcardname = sheet_get(cardname)
 getcolname = sheet_get(colname)
 
 def embed_card(embed):
     row = len(getcardname) + 1
     model = embed.title.split()[0]
-    raritype = embed.fields[0].value
-    rarity = raritype.replace('Limited ', '')
-    ctype = 'Standard'
-    if 'Limited' in raritype: ctype = 'Limited'
+    value = embed.fields[0].value
+    rarity = value.replace('Limited ', '')
+    status = ''
+    if 'Limited' in value: status = 'Limited'
     card = [
             f'=VLOOKUP(B{row}, {collist}, 2, false)',
             embed.footer.text, # 1. collection
-            embed.title.replace(model+' ', ''), #2. name
-            rarity, # 3. rarity
-            ctype, # 4. card type
-            embed.fields[1].value, # 5. cost
-            embed.fields[2].value, # 6. power
+            embed.title.replace(model+' ', ''), # name
+            rarity, # rarity
+            status, # status
+            embed.fields[1].value, # cost
+            embed.fields[2].value, # power
             f'=IF(F{row}=0,"∞",ROUNDDOWN(G{row}/F{row},0))',
-            f'{embed.fields[3].name}: {embed.fields[3].value.strip()}',
-            model, # 9. card model number
+            embed.fields[3].name, # ability name
+            embed.fields[3].value, # ability
+            model,
             f'=VLOOKUP(C{row}, {loglist}, 2, false)']
     return card
 
