@@ -19,44 +19,32 @@ def sheet_get(range):
             spreadsheetId=qct,
             range=range).execute().get('values', [])
 
+def scope_check(album='-', collection='-', named='-'):
+    scope = f'''
+    Scope
+    ```
+    Album: {album}
+    Collection: {collection}
+    Card (Named): {named}
+    '''
+    return scope
+
+#card = [album, collection, name, rarity, status, cost, power, ppe, ability name, ability, model, date]
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
+
 cardlist = sheet_get("Card List!A:Z")
 namelist = sheet_get("Card List!C:C")
 collist = sheet_get("Collection!A:B")
-
-"""
-card = [
-        album,
-        collection,
-        name,
-        rarity,
-        type,
-        cost,
-        power,
-        ppe,
-        ability name,
-        ability,
-        model,
-        date]
-"""
 
 @commands.command(aliases=['whats'])
 async def whatis(ctx, *, kwargs):
     for card in cardlist:
         if any(kwargs.lower() == info.lower() for info in card):
             await ctx.send(card)
-            targetcard, targetcol, targetalb = False, False, False
-            if any(i[1] in card[9] for i in collist): targetalb = True
-            if any(i[0] in card[9] for i in collist): targetcol = True
-            if any(i[0] in card[9] for i in namelist): targetcard = True
-            await ctx.send(f'''
-```
-Scope
-Album: {targetalb}
-Collection: {targetcol}
-Card (specific): {targetcard}
-```
-                    ''')
+            alb = any(i[1] in card[9] for i in collist)
+            col = any(i[0] in card[9] for i in collist)
+            nam = any(i[0] in card[9] for i in namelist)
+            await ctx.send(scope_check(alb,col,nam))
 
 def setup(bot):
     bot.add_command(whatis)
