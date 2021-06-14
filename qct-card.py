@@ -52,7 +52,7 @@ def embed_card(embed):
             embed.fields[1].value, # 5. cost
             embed.fields[2].value, # 6. power
             f'=IF(F{row}=0,"∞",ROUNDDOWN(G{row}/F{row},0))',
-            f'{embed.fields[3].name} - {embed.fields[3].value}',
+            f'{embed.fields[3].name}: {embed.fields[3].value.strip()}',
             model, # 9. card model number
             f'=VLOOKUP(C{row}, {loglist}, 2, false)']
     return card
