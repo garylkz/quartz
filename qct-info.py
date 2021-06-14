@@ -19,14 +19,17 @@ def sheet_get(range):
             spreadsheetId=qct,
             range=range).execute().get('values', [])
 
-def scope_check(album='-', collection='-', named='-'):
-    scope = f'''
-    Scope
-    ```
+def check_card(card):
+    sort = '\n'.join(card)
+    card = f'''Card```
+{sort}```'''
+    return card
+
+def check_scope(album='-', collection='-', named='-'):
+    scope = f'''Scope```
 Album: {album}
 Collection: {collection}
-Card (Named): {named}```
-    '''
+Card (Named): {named}```'''
     return scope
 
 #card = [album, collection, name, rarity, status, cost, power, ppe, ability name, ability, model, date]
@@ -40,11 +43,12 @@ collist = sheet_get("Collection!A:B")
 async def whatis(ctx, *, kwargs):
     for card in cardlist:
         if any(kwargs.lower() == info.lower() for info in card):
-            await ctx.send(card)
-            alb = any(i[1] in card[9] for i in collist)
-            col = any(i[0] in card[9] for i in collist)
-            nam = any(i[0] in card[9] for i in namelist)
-            await ctx.send(scope_check(alb,col,nam))
+            ability = card[9]
+            await ctx.send(check_card(card))
+            alb = any(i[1] in ability for i in collist)
+            col = any(i[0] in ability for i in collist)
+            nam = any(i[0] in ability for i in namelist)
+            await ctx.send(check_scope(alb,col,nam))
 
 def setup(bot):
     bot.add_command(whatis)
