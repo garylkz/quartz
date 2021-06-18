@@ -25,13 +25,6 @@ def check_card(card):
 {sort}```'''
     return card
 
-def check_scope(album='-', collection='-', named='-'):
-    scope = f'''Scope```
-Album: {album}
-Collection: {collection}
-Card (Named): {named}```'''
-    return scope
-
 #card = [album, collection, name, rarity, status, cost, power, ppe, ability name, ability, model, date]
 qct = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 
@@ -45,10 +38,15 @@ async def whatis(ctx, *, kwargs):
         if any(kwargs.lower() == info.lower() for info in card):
             ability = card[9]
             await ctx.send(check_card(card))
-            alb = any(i[1] in ability for i in collist)
-            col = any(i[0] in ability for i in collist)
-            nam = any(i[0] in ability for i in namelist)
-            await ctx.send(check_scope(alb,col,nam))
+            text = 'Scope```\n'
+            if any(i[1] in ability for i in collist):
+                text = text + '- Mentioned Album\n'
+            if any(i[0] in ability for i in collist):
+                text = text + '- Mentioned Collection\n'
+            if any(i[0] in ability for i in namelist):
+                text = text + f'- Mentioned Card\n'
+            text = text + '```'
+            await ctx.send(text)
 
 def setup(bot):
     bot.add_command(whatis)
