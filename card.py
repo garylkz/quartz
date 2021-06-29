@@ -60,21 +60,24 @@ def embed_card(embed):
     return card
 
 async def on_embed(msg):
-    for embed in msg.embeds:
-        #print(embed.to_dict())
-        card = embed_card(embed)
-        if any(card[2] in i for i in getcardname):
-            await msg.channel.send('data exists')
-            continue
-        body = {'values': [card]}
-        sheet_append(cardlist, body)
-        body['values'] = [[card[2], str(date.today())]]
-        sheet_append(loglist, body)
-        if 'Fusion' in card[3]:
-            sheet_append('Fusion!A:A', [[card[2]]])
-        if not any(card[1] in i for i in getcolname):
-            sheet_append(colname, [[card[1]]])
-        await msg.channel.send('data added')
+	for embed in msg.embeds:
+		card = embed_card(embed)
+		if any(card[2] in i for i in getcardname):
+			await msg.channel.send('data exists')
+			continue
+		body = {'values': [card]}
+		sheet_append(cardlist, body)
+		body['values'] = [[card[2], str(date.today())]]
+		sheet_append(loglist, body)
+		await msg.channel.send('data added')
+		if 'Fusion' in card[3]:
+			body['values'] = [[card[2]]]
+			sheet_append('Fusion!A:A', body)
+			await msg.channel.send('fusion check')
+		if not any(card[1] in i for i in getcolname):
+			body['values'] = [[card[1]]]
+			sheet_append(colname, body)
+			await msg.channel.send('new category')
 
 def setup(bot):
     bot.add_listener(on_embed, 'on_message')
