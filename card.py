@@ -77,7 +77,7 @@ async def on_embed(msg):
 		if not any(card[1] in i for i in getcolname):
 			body['values'] = [[card[1]]]
 			sheet_append(colname, body)
-			await msg.channel.send('new category')
+			await msg.channel.send('new collection')
 
 def setup(bot):
     bot.add_listener(on_embed, 'on_message')
