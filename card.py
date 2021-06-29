@@ -72,7 +72,7 @@ async def on_embed(msg):
         sheet_append(loglist, body)
         if 'Fusion' in card[3]:
             sheet_append('Fusion!A:A', card[2])
-        if not any(card[1] in i for i in  getcolname):
+        if not any(card[1] in i for i in getcolname):
             sheet_append(colname, card[1])
         await msg.channel.send('data added')
 
