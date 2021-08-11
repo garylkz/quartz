@@ -64,16 +64,17 @@ async def on_embed(msg):
     for embed in msg.embeds:
         if debug: print(embed.to_dict())
         card = card_get(embed)
-        if any(card in i for i in sheet_get(CARDS)):
+        cname = card[2]
+        if any(cname in i for i in sheet_get(CARDS)):
             await msg.channel.send('`Your opinion has been rejected.` (data exist)')
             continue
         body = {'values': [card]}
         sheet_append(CARDS, body)
-        body['values'] = [[card[2], str(date.today())]]
+        body['values'] = [[cname, str(date.today())]]
         sheet_append(LOGS, body)
         await msg.channel.send('Card data added.')
         if 'Fusion' in card[3]:
-            body['values'] = [[card[2]]]
+            body['values'] = [[cname]]
             sheet_append('Fusion!A:A', body)
             await msg.channel.send('Fusion detected.')
         if not any(card[1] in i for i in sheet_get(SNAMES)):
