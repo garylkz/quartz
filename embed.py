@@ -48,7 +48,7 @@ def card_get(embed):
     album = f'=VLOOKUP(B{ROWS}, {SUBS}, 2, false)'
     collection = embed.footer.text
     model, name = embed.title.split(' ', 1)
-    if DEBUG: name += str(random())[2:]
+    if debug: name += str(random())[2:]
     value = embed.fields[0].value.split()
     status, rarity = value if 'Limited' in value else ('', value[0])
     cost = embed.fields[1].value
@@ -62,7 +62,7 @@ def card_get(embed):
 async def on_embed(msg):
     if msg.author.id != 739553550224588810: return 
     for embed in msg.embeds:
-        if DEBUG: print(embed.to_dict())
+        if debug: print(embed.to_dict())
         card = card_get(embed)
         if any(card in i for i in sheet_get(CARDS)):
             await msg.channel.send('`Your opinion has been rejected.` (data exist)')
