@@ -18,22 +18,23 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
 os.remove('creds.json')
 
 service = build('sheets', 'v4', credentials=creds)
-sheet = service.spreadsheets().values()
+sheet = service.spreadsheets()
 
 CARDS = 'Card List!A:Z'
 CNAMES = 'Card List!C:C'
 SUBS = 'Collection!A:B'
 SNAMES = 'Collection!A:D'
+LGCYS = 'Legacy Cards!A:Z'
 LOGS = 'Changelog!A:B'
 
 SHEET = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 USER = 'USER_ENTERED'
 
-append = lambda r, b, i=SHEET : sheet.append(spreadsheetId=i, range=r, body=b, valueInputOption=USER).execute()
-get = lambda r : sheet.get(spreadsheetId=SHEET, range=r).execute().get('values', [])
+append = lambda r, b, i=SHEET : sheet.values().append(spreadsheetId=i, range=r, body={'values': b}, valueInputOption=USER).execute()
+get = lambda r : sheet.values().get(spreadsheetId=SHEET, range=r).execute().get('values', [])
+update = lambda r, b, i=SHEET : sheet.values().update(spreadsheetId=i, range=r, body={'values': b}, valueInputOption=USER).execute()
 
-IDS = []
-appends = lambda r, b, i : [append(r, b, i) for i in IDS]
+appends = lambda r, b, ids : [append(r, b, i) for i in ids]
 
 DEBUG = True
 
@@ -46,7 +47,7 @@ def debug_init(chn):
             print(c)
             c = f'```\n{c}\n```'
             x = f'{header}\n{c}' if header else c
-            await c.send(x)
+            await chn.send(x)
     return f
 
 
@@ -76,43 +77,50 @@ async def on_embed(msg):
     # Set debug channel
     debug_log = debug_init(msg.channel)
     # Card not found check
-    if re.search('^Search text ".*" not found$', msg.content):
-        await debug_log('EVENT: IGNORE')
-        pass
-        # TODO: Legacy
+    notFound = re.search('^Search text "(.*)" not found$', msg.content)
+    if notFound:
+        name = notFound.group(1)
+        cards = get(CARDS)
+        names = [i[2] for i in cards]
+        if name in names:
+            i = names.index(name)
+            card = cards.pop(i)
+            cards.append([''] * 13)
+            update(CARDS, cards)
+            append(LGCYS, [['Removed'] + card])
+            await msg.channel.send('Card removed, moving to Legacy.')
+        else:
+            await debug_log('IGNORE', header='Event')
+        return
     # Embed check
     for embed in msg.embeds:
-        # Is card check
+        # Results check
         if re.search('^Results for ".*"$', embed.title):
-            await debug_log('EVENT: IGNORE')
+            await debug_log('IGNORE', header='Event')
             return
         card = _, c, n, r, *_ = card_get(embed)
-        body = {'values': [card]}
         today = str(date.today())
         try:
             cards = get(CARDS)
             names = [i[2] for i in cards]
             if n in names:
                 i = names.index(n)
-                await debug_log(card, header='CUE Bot:')
-                await debug_log(cards[i], header='Sheet:')
+                await debug_log(card, header='CUE Bot')
+                await debug_log(cards[i], header='Sheet')
                 if card == cards[i]:
                     await msg.channel.send(f'Data exist.')
                 else:
                     pass # TODO: Legacy
             else:
-                append(CARDS, body)
-                body['values'] = [[n, today]]
-                append(LOGS, body)
+                append(CARDS, [card])
+                append(LOGS, [[n, today]])
                 await msg.channel.send('Data added.')
             if 'Fusion' in r:
-                body['values'] = [[n]]
-                append('Fusion!A:A', body)
+                append('Fusion!A:A', [[n]])
                 await msg.channel.send('Fusion detected.')
             if not any(c in i[0] for i in get(SNAMES)):
                 p = re.search('(^[A-Z]+)[0-9]+$', card[10]).group(1)
-                body['values'] = [[c, '', p, today]]
-                append(SNAMES, body)
+                append(SNAMES, [[c, '', p, today]])
                 await msg.channel.send('New collection detected.')
         except HttpError:
             await msg.channel.send("But I don't have permission to edit the sheet!")
