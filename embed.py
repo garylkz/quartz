@@ -1,6 +1,7 @@
 from datetime import date
 import os
 import re
+from typing import ClassVar
 
 from googleapiclient.errors import HttpError
 from googleapiclient.discovery import build
@@ -31,11 +32,23 @@ USER = 'USER_ENTERED'
 append = lambda r, b, i=SHEET : sheet.append(spreadsheetId=i, range=r, body=b, valueInputOption=USER).execute()
 get = lambda r : sheet.get(spreadsheetId=SHEET, range=r).execute().get('values', [])
 
-
 IDS = []
 appends = lambda r, b, i : [append(r, b, i) for i in IDS]
 
-DEBUG = False
+DEBUG = True
+
+
+# Debug logging
+def debug_init(chn):
+    async def f(c, *, 
+            header: str = None) -> None:
+        if DEBUG:
+            print(c)
+            c = f'```\n{c}\n```'
+            x = f'{header}\n{c}' if header else c
+            await c.send(x)
+    return f
+
 
 # Sort out card info from embed
 def card_get(embed) -> list:
@@ -53,22 +66,26 @@ def card_get(embed) -> list:
     log = str(date.today())
     url = embed.image.url
     card = [album, collection, name, rarity, status, cost, power, ppe, ability, description, model, log, url]
-    if DEBUG:
-        print(card)
     return card
+
 
 async def on_embed(msg):
     # @CUE#3444 check
     if msg.author.id != 739553550224588810:
         return
+    # Set debug channel
+    debug_log = debug_init(msg.channel)
     # Card not found check
     if re.search('^Search text ".*" not found$', msg.content):
-      await msg.channel.send('Potential card removal')
-      # TODO: move card to Legacy
+        await debug_log('EVENT: IGNORE')
+        pass
+        # TODO: Legacy
     # Embed check
     for embed in msg.embeds:
-        if DEBUG:
-            print(embed.to_dict())
+        # Is card check
+        if re.search('^Results for ".*"$', embed.title):
+            await debug_log('EVENT: IGNORE')
+            return
         card = _, c, n, r, *_ = card_get(embed)
         body = {'values': [card]}
         today = str(date.today())
@@ -77,17 +94,17 @@ async def on_embed(msg):
             names = [i[2] for i in cards]
             if n in names:
                 i = names.index(n)
+                await debug_log(card, header='CUE Bot:')
+                await debug_log(cards[i], header='Sheet:')
                 if card == cards[i]:
-                    await msg.channel.send(f'Data exist. (row {i})')
+                    await msg.channel.send(f'Data exist.')
                 else:
-                    await msg.channel.send('>existing data outdated\n>move it to legacy section\n>replace')
-                    # TODO: move card to Legacy
+                    pass # TODO: Legacy
             else:
                 append(CARDS, body)
                 body['values'] = [[n, today]]
                 append(LOGS, body)
                 await msg.channel.send('Data added.')
-                await msg.delete()
             if 'Fusion' in r:
                 body['values'] = [[n]]
                 append('Fusion!A:A', body)
@@ -99,6 +116,10 @@ async def on_embed(msg):
                 await msg.channel.send('New collection detected.')
         except HttpError:
             await msg.channel.send("But I don't have permission to edit the sheet!")
+        # Debug cleanup
+        if DEBUG:
+            await msg.delete()
+
 
 def setup(bot):
     bot.add_listener(on_embed, 'on_message')
