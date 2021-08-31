@@ -53,6 +53,7 @@ async def on_embed(msg):
     if notFound:
         n = notFound.group(1).lower()
         if n in names:
+            await debug_log('EVENT: REMOVE')
             i = names.index(n)
             card = cards.pop(i)
             cards.append([''] * 13)
@@ -60,18 +61,20 @@ async def on_embed(msg):
             append(LGCYS, [['Removed'] + card])
             await msg.channel.send('Card removed.')
         else:
-            await debug_log('IGNORE')
+            await debug_log('IGNORE: NOT FOUND')
         return
     # Embed check
     for embed in msg.embeds:
-        if re.search('^Results for ".*"$', embed.title):
-            await debug_log('IGNORE')
+        if re.search('^Results for ".+":.*', embed.title):
+            await debug_log('IGNORE: RESULTS')
             return # Ignore 'results'
         card = _, c, n, r, *_ = card_get(embed)
         today = str(date.today())
         try: # Permission check
-            if n in names:
-                i = names.index(n)
+            nx = n.lower()
+            await debug_log(f'NAME IN LIST: {nx in names}')
+            if nx in names:
+                i = names.index(nx)
                 await asyncio.gather(
                     debug_log(card, header='CUE Bot'),
                     debug_log(cards[i], header='Sheet')
@@ -79,6 +82,7 @@ async def on_embed(msg):
                 if card == cards[i]:
                     await msg.channel.send(f'Data exist.')
                 else: # Update event
+                    await debug_log('EVENT: UPDATE')
                     pass # TODO: Legacy
             else:
                 append(CARDS, [card])
@@ -103,7 +107,7 @@ async def on_embed(msg):
 # Debug logging
 def debug_init(chn) -> Awaitable:
     async def f(c, *, 
-            header: str = 'Event') -> None:
+            header: str = 'Debug') -> None:
         print(c)
         cx = f'{header}\n```\n{c}\n```'
         await chn.send(cx)
