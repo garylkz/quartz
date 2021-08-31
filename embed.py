@@ -27,62 +27,98 @@ sheet = service.spreadsheets()
 SHEET = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo'
 USER = 'USER_ENTERED'
 
-append = lambda r, b, i=SHEET : sheet.values().append(spreadsheetId=i, range=r, body={'values': b}, valueInputOption=USER).execute()
-get = lambda r : sheet.values().get(spreadsheetId=SHEET, range=r).execute().get('values', [])
-update = lambda r, b, i=SHEET : sheet.values().update(spreadsheetId=i, range=r, body={'values': b}, valueInputOption=USER).execute()
-appends = lambda r, b, ids : [append(r, b, i) for i in ids]
+append = lambda r, b, : sheet.values().append(spreadsheetId=SHEET, range=r, body={'values': b}, valueInputOption=USER).execute()
+update = lambda r, b, i=SHEET : sheet.values().update(spreadsheetId=SHEET, range=r, body={'values': b}, valueInputOption=USER).execute()
 
 CARDS = 'Card List!A:Z'
-SNAMES = 'Collection!A:D'
+CLTS = 'Collection!A:D'
 LGCYS = 'Legacy Cards!A:Z'
 
 DEBUG = True
 
 
+# Debug logging
+def debug_log(chn) -> Awaitable:
+    async def f(c, *, 
+            header: str = 'Debug') -> None:
+        print(c)
+        cx = f'{header}\n```\n{c}\n```'
+        await chn.send(cx)
+    return f
+
+
+# Extract card info from embed
+def extract(embed, r: int, date: str) -> list:
+    album = f'=VLOOKUP(B{r}, Collection!A:B, 2, false)'
+    collection = embed.footer.text
+    model, name = embed.title.split(' ', 1)
+    value = embed.fields[0].value.split()
+    status, rarity = value if 'Limited' in value else ('Standard', value[0])
+    cost = embed.fields[1].value
+    power = embed.fields[2].value 
+    ppe = '∞' if cost == '0' else str(int(power)//int(cost))
+    ability = embed.fields[3].name
+    description = embed.fields[3].value
+    url = embed.image.url
+    card = [album, collection, name, status, rarity, cost, power, ppe, ability, description, model, date, url]
+    return card
+
+
 async def on_embed(msg):
-    # Bot check
+    # CUE bot check
     if msg.author.id != 739553550224588810:
         return
     # Set debug channel
-    debug_log = debug_init(msg.channel)
-    # Get existing data
-    cards = get(CARDS)
-    names = [i[2].lower() for i in cards]
-    # Card not found check
-    notFound = re.search('^Search text "(.*)" not found$', msg.content)
+    log = debug_log(msg.channel)
+    # Access qct sheets data
+    data = sheet.values().batchGet(
+        spreadsheetId=SHEET,
+        ranges = [CARDS, CLTS]
+    ).execute().get('valueRanges', [])
+    cards, cols = [i['values'] for i in data]
+    ns = [i[2].lower() for i in cards]
+    # Search not found check
+    notFound = re.search('^Search text "(.+)" not found$', msg.content)
     if notFound:
         n = notFound.group(1).lower()
-        if n in names:
-            await debug_log('EVENT: REMOVE')
-            i = names.index(n)
-            card = cards.pop(i)
+        if n in ns:
+            await log('EVENT: REMOVE')
+            i = ns.index(n)
+            card = ['Removed'] + cards[i]
+            del cards[i]
             cards.append([''] * 13)
             update(CARDS, cards)
-            append(LGCYS, [['Removed'] + card])
+            append(LGCYS, [card])
             await msg.channel.send('Card removed.')
         else:
-            await debug_log('IGNORE: NOT FOUND')
+            await log('IGNORE: NOT FOUND')
         return
     # Embed check
     for embed in msg.embeds:
+        # Multiple results check
         if re.search('^Results for ".+":.*', embed.title):
-            await debug_log('IGNORE: RESULTS')
-            return # Ignore 'results'
-        card = _, c, n, r, *_ = card_get(embed)
+            await log('IGNORE: RESULTS')
+            return
+        elif 'CUEbot Help' in embed.title:
+            await log('IGNORE: HELP')
+            return
+        # Extract info 
         today = str(date.today())
-        try: # Permission check
-            nx = n.lower()
-            await debug_log(f'NAME IN LIST: {nx in names}')
-            if nx in names:
-                i = names.index(nx)
+        card = _, s, n, r, *_ = extract(embed, len(cards)+1, today)
+        try:
+            n_ = n.lower()
+            await log('NAME IN LIST: ' + str(n_ in ns).upper())
+            if n_ in ns:
+                # Compare data
+                i = ns.index(n_)
                 await asyncio.gather(
-                    debug_log(card, header='CUE Bot'),
-                    debug_log(cards[i], header='Sheet')
+                    log(card, header='Latest'),
+                    log(cards[i], header='Existing')
                 )
-                if card == cards[i]:
+                if card[:11] == cards[i][:11]:
                     await msg.channel.send(f'Data exist.')
-                else: # Update event
-                    await debug_log('EVENT: UPDATE')
+                else:
+                    await log('EVENT: UPDATE')
                     pass # TODO: Legacy
             else:
                 append(CARDS, [card])
@@ -93,44 +129,15 @@ async def on_embed(msg):
                 append('Fusion!A:A', [[n]])
                 await msg.channel.send('Fusion detected.')
             # Collection check
-            if not any(c in i[0] for i in get(SNAMES)):
+            if not any(s in i[0] for i in cols):
                 p = re.search('(^[A-Z]+)[0-9]+$', card[10]).group(1)
-                append(SNAMES, [[c, '', p, today]])
+                append(CLTS, [[s, '', p, today]])
                 await msg.channel.send('Collection detected.')
         except HttpError:
             await msg.channel.send("No 'Editor' permission.")
         # Debug cleanup
         if DEBUG:
             await msg.delete()
-
-
-# Debug logging
-def debug_init(chn) -> Awaitable:
-    async def f(c, *, 
-            header: str = 'Debug') -> None:
-        print(c)
-        cx = f'{header}\n```\n{c}\n```'
-        await chn.send(cx)
-    return f
-
-
-# Sort out card info from embed
-def card_get(embed) -> list:
-    ROWS = len(get(CARDS)) + 1
-    album = f'=VLOOKUP(B{ROWS}, Collection!A:B, 2, false)'
-    collection = embed.footer.text
-    model, name = embed.title.split(' ', 1)
-    value = embed.fields[0].value.split()
-    status, rarity = value if 'Limited' in value else ('Standard', value[0])
-    cost = embed.fields[1].value
-    power = embed.fields[2].value 
-    ppe = '∞' if cost == '0' else str(int(power)//int(cost))
-    ability = embed.fields[3].name
-    description = embed.fields[3].value
-    log = str(date.today())
-    url = embed.image.url
-    card = [album, collection, name, status, rarity, cost, power, ppe, ability, description, model, log, url]
-    return card
 
 
 def setup(bot):
