@@ -9,16 +9,16 @@ from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Authentication
-creds = 'creds.json'
-open(creds, 'w').write(os.environ['CREDS'])
+CREDS = 'creds.json'
+open(CREDS, 'w').write(os.environ['CREDS'])
 scope = [
         'https://spreadsheets.google.com/feeds',
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive.file',
         'https://www.googleapis.com/auth/drive'
 ]
-creds = ServiceAccountCredentials.from_json_keyfile_name(creds, scope)
-os.remove(creds)
+creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS, scope)
+os.remove(CREDS)
 
 # Goole Sheets service
 service = build('sheets', 'v4', credentials=creds)
