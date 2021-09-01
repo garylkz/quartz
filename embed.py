@@ -121,12 +121,17 @@ async def on_embed(msg):
                 if inList:
                     # Partial compare
                     i = ns.index(n_)
-                    await asyncio.gather(
-                        log(card, header='Latest'),
-                        log(cards[i], header='Current')
-                    )
+                    if DEBUG: 
+                        await asyncio.gather(
+                            log(card, header='Latest'),
+                            log(cards[i], header='Current')
+                        )
                     bot = card[:3] + card[4:11]
                     qct = cards[i][:3] + cards[i][4:11]
+                    await asyncio.gather(
+                        log(bot, header='Latest'),
+                        log(qct, header='Current')
+                    )
                     if bot == qct:
                         if len(qct) == 13:
                             ls.append('2. IGNORE: IDENTICAL')
@@ -140,8 +145,9 @@ async def on_embed(msg):
                         ls.append('2. UPDATE: CARD')
                         lgcy = ['Updated'] + cards[i]
                         append(LGCYS, [lgcy])
-                        cards[i] = card[:3] + cards[i][3] + card[4:11] + cards[i][11] + [embed.image.url]
+                        cards[i] = card[:3] + [cards[i][3]] + card[4:11] + [cards[i][11]] + [embed.image.url]
                         update(CARDS, cards)
+                        await msg.channel.send('Card updated')
                 else:
                     ls.append('EVENT: APPEND')
                     append(CARDS, [card])
