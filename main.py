@@ -2,9 +2,8 @@ import os
 import wake
 
 from discord.ext import commands
-from replit import info
 
-wake.up(info.co_url)
+wake.up()
 
 bot = commands.Bot(',')
 bot.load_extension('extension')

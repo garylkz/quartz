@@ -4,11 +4,11 @@ import setuptools
 requirements = open('requirements.txt').read().splitlines()
 
 setuptools.setup(
-        name='Project Q',
-        version='0.1.3',
+        name='Project (Not Ultra) Q',
+        version='0.1.4',
         author='thisgary',
         author_email='gary.github@gmail.com',
-        description='Q Discord bot.',
+        description='Q Discord bot source code.',
         # long_description=readme,
         # long_description_content_type='text/markdown',
         packages=setuptools.find_packages(),
