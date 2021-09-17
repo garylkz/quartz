@@ -10,7 +10,7 @@ __all__ = ['up']
 
 app = Flask('')
 home = app.route('/')(lambda: 'Bot is up!')
-run = lambda: app.run(host='0.0.0.0', port=8080),
+run = lambda: app.run(host='0.0.0.0', port=8080)
 ping = lambda: (urlopen(info.co_url), sleep(5 * 60), ping())
 
 

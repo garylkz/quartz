@@ -2,11 +2,14 @@ import asyncio
 import datetime
 import json
 import os
+import random
 import re
 from typing import Literal
 
-import googleapiclient
+from discord.ext import commands
+from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
+
 
 # Authentication
 CREDS = json.loads(os.environ['CREDS'])
@@ -17,7 +20,7 @@ SCOPE = [
     'https://www.googleapis.com/auth/spreadsheets'
 ]
 creds = ServiceAccountCredentials.from_json_keyfile_dict(CREDS, SCOPE)
-service = googleapiclient.discovery.build('sheets', 'v4', credentials=creds)
+service = discovery.build('sheets', 'v4', credentials=creds)
 sheet = service.spreadsheets()
 
 ID = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo' # Not confidential
@@ -27,6 +30,7 @@ LGCYS = 'Legacy Cards!A:Z'
 
 
 sheet_append = lambda r, b : sheet.values().append(spreadsheetId=ID, range=r, body={'values': [b]}, valueInputOption='USER_ENTERED').execute()
+sheet_update = lambda r, b : sheet.values().update(spreadsheetId=ID, range=r, body={'values': b}, valueInputOption='USER_ENTERED').execute()
 
 
 def card_album(model: str) -> Literal['Art and Culture', 'History', 'Life on Land', 'Oceans', 'Paleontology', 'Science', 'Space']:
@@ -65,15 +69,28 @@ async def check(message):
         ): return
         card = extract(embed)
         album = card_album(card[0])
-        data = sheet.values().batchGet(spreadsheetId=ID, ranges = [CARDS, COLS]).execute().get('valueRanges', [])
+        data = sheet.values().batchGet(spreadsheetId=ID, ranges=[CARDS, COLS]).execute().get('valueRanges', [])
         cards, subs = [i['values'] for i in data]
-        match, matches = [card[1], card[9]], [[card[1], card[9]] for card in cards] # Kinda slow
+        match, matches = card[9], [i[10] for i in cards] # Kinda slow
         today = str(datetime.date.today())
         # Card check
         if match in matches:
             i = matches.index(match)
-            # TODO: update check
-        else:
+            existing = cards[i][1:11]
+            card[2] = existing[2] # Hierarchy
+            if card != existing: # Update card
+                legacy = ['Updated'] + cards[i][:11] + [today]
+                sheet_append(LGCYS, legacy) # Add legacy
+                cards[i] = cards[0] + card + [embed.image.url]
+                sheet_update(CARDS, cards)
+                await message.channel.send('Update detected.')
+            else: 
+                await message.channel.send('Nothing happens.')
+                if len(cards[i]) != 13: # Update image, temporary
+                    cards[i].append(embed.image.url)
+                    sheet_update(CARDS, cards)
+                    await message.channel.send('Oh wait, something did.')
+        else: # Add card
             sheet_append(CARDS, [album] + card + [today, embed.image.url])
             sheet_append('Changelog!A:B', [card[1], today])
             await asyncio.gather(
@@ -82,14 +99,26 @@ async def check(message):
             )
         # Fusion check
         if 'Fusion' in card[3]:
-            sheet_append('Fusion!A:A', [[card[1]]])
+            sheet_append('Fusion!A:A', [card[1]])
             await message.channel.send('Fusion detected.')
         # Collection check
         if card[0] not in [i[0] for i in subs]:
             code = re.search('(^[A-Z]+)[0-9]+$', card[10]).group(1)
-            sheet_append(COLS, [[card[0], album, code, today]])
+            sheet_append(COLS, [card[0], album, code, today])
             await message.channel.send('Collection detected.')
+
+
+@commands.command('requiem')
+async def restructure(ctx) -> None:
+    models = [i[0] for i in sheet.values().get(spreadsheetId=ID, range='Card List!K:K').execute().get('values', [])]
+    random.shuffle(models)
+    await ctx.send('Begin of a chaos.')
+    for j in models:
+        await ctx.send(f'/find {j}')
+        await asyncio.sleep(20)
+    await ctx.send('Process finished.')
 
 
 def setup(bot):
     bot.add_listener(check, 'on_message')
+    bot.add_command(restructure)
