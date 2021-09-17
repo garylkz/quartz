@@ -81,7 +81,7 @@ async def check(message):
             if card != existing: # Update card
                 legacy = ['Updated'] + cards[i][:11] + [today]
                 sheet_append(LGCYS, legacy) # Add legacy
-                cards[i] = cards[0] + card + [embed.image.url]
+                cards[i] = cards[i][0] + card + [cards[i][11], embed.image.url]
                 sheet_update(CARDS, cards)
                 await message.channel.send('Update detected.')
             else: 
