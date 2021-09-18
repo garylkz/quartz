@@ -130,7 +130,7 @@ async def update_image_url(ctx) -> None:
     cards = sheet_get(CARDS)
     for card in cards: 
         if len(card) < 13:
-            await ctx.send(f'/find {card}')
+            await ctx.send(f'/find {card[10]}')
             await asyncio.sleep(20)
     await ctx.send('Finished updating.')
 
