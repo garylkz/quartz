@@ -28,9 +28,8 @@ CARDS = 'Card List!A:M'
 COLS = 'Collection!A:D'
 LGCYS = 'Legacy Cards!A:AZ'
 
-SILENT = False
 
-
+sheet_get = lambda r : sheet.values().get(spreadsheetId=ID, range=r).execute().get('values', [])
 sheet_append = lambda r, b : sheet.values().append(spreadsheetId=ID, range=r, body={'values': [b]}, valueInputOption='USER_ENTERED').execute()
 sheet_update = lambda r, b : sheet.values().update(spreadsheetId=ID, range=r, body={'values': b}, valueInputOption='USER_ENTERED').execute()
 
@@ -90,12 +89,14 @@ async def check(message):
                 cards[i] = card + [cards[i][11], embed.image.url]
                 sheet_update(CARDS, cards)
                 await message.channel.send('Update detected.')
+                await message.delete()
             else: 
                 await message.channel.send('Nothing happens.')
                 if len(cards[i]) == 12: # Update image, temporary
                     cards[i].append(embed.image.url)
                     sheet_update(CARDS, cards)
                     await message.channel.send('Oh wait, something did.')
+                    await message.delete()
         else: # Add card
             sheet_append(CARDS, card + [today, embed.image.url])
             sheet_append('Changelog!A:B', [card[2], today])
@@ -112,13 +113,12 @@ async def check(message):
             code = re.search('(^[A-Z]+)[0-9]+$', card[10]).group(1)
             sheet_append(COLS, [card[1], card[0], code, today])
             await message.channel.send('Collection detected.')
-        if SILENT: await message.delete()
 
 
 @commands.command('massupdate')
 async def update_all_cards(ctx) -> None:
-    cards = sheet.values().get(spreadsheetId=ID, range=CARDS).execute().get('values', [])
-    await ctx.send(f'{len(cards)} cards to be updated.')
+    cards = sheet_get(CARDS)
+    await ctx.send(f'{len(cards)*20}s to go.')
     for card in cards:
         await ctx.send(f'/find {card[10]}')
         await asyncio.sleep(20)
@@ -127,17 +127,12 @@ async def update_all_cards(ctx) -> None:
 
 @commands.command('image')
 async def update_image_url(ctx) -> None:
-    global SILENT
-    SILENT, models = True, []
-    cards = sheet.values().get(spreadsheetId=ID, range=CARDS).execute().get('values', [])
-    for card in cards:
-        if len(card) < 13: models.append(card[10])
-    await ctx.send(f'{len(models)} cards to be updated.')
-    for model in models:
-        await ctx.send(f'/find {model}')
-        await asyncio.sleep(20)
-    await ctx.send('Finished updating images.')
-    SILENT = False
+    cards = sheet_get(CARDS)
+    for card in cards: 
+        if len(card) < 13:
+            await ctx.send(f'/find {card}')
+            await asyncio.sleep(20)
+    await ctx.send('Finished updating.')
 
 
 def setup(bot):
