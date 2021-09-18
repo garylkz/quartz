@@ -115,37 +115,32 @@ async def check(message):
         if SILENT: await message.delete()
 
 
-# @commands.command('requiem')
-# async def restructure(ctx) -> None:
-#     models = [i[0] for i in sheet.values().get(spreadsheetId=ID, range='Card List!K:K').execute().get('values', [])]
-#     random.shuffle(models)
-#     await ctx.send('Begin of a chaos.')
-#     for j in models:
-#         await ctx.send(f'/find {j}')
-#         await asyncio.sleep(20)
-#     await ctx.send('Process finished.')
+@commands.command('massupdate')
+async def update_all_cards(ctx) -> None:
+    cards = sheet.values().get(spreadsheetId=ID, range=CARDS).execute().get('values', [])
+    await ctx.send(f'{len(cards)} cards to be updated.')
+    for card in cards:
+        await ctx.send(f'/find {card[10]}')
+        await asyncio.sleep(20)
+    await ctx.send('Finished updating.')
 
 
 @commands.command('image')
 async def update_image_url(ctx) -> None:
-    cards = sheet.values().get(spreadsheetId=ID, range=CARDS).execute().get('values', [])
-    updates = []
     global SILENT
-    SILENT = True
+    SILENT, models = True, []
+    cards = sheet.values().get(spreadsheetId=ID, range=CARDS).execute().get('values', [])
     for card in cards:
-        if len(card) < 13:
-            updates.append(card[10])
-    l = len(updates)
-    await ctx.send(f'{l} cards to be updated. ({l*20}s)')
-    await asyncio.sleep(5)
-    for model in updates:
+        if len(card) < 13: models.append(card[10])
+    await ctx.send(f'{len(models)} cards to be updated.')
+    for model in models:
         await ctx.send(f'/find {model}')
         await asyncio.sleep(20)
-    await ctx.send('Image url finished updating.')
+    await ctx.send('Finished updating images.')
     SILENT = False
 
 
 def setup(bot):
     bot.add_listener(check, 'on_message')
     bot.add_command(update_image_url)
-    # bot.add_command(restructure)
+    bot.add_command(update_all_cards)
