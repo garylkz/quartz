@@ -85,7 +85,7 @@ async def check(message):
             existing = cards[i][:11]
             card[3] = existing[3] # Hierarchy
             if card != existing: # Update card
-                legacy = ['Updated'] + existing + [''] + card + [today]
+                legacy = ['Updated'] + existing + card + [today]
                 sheet_append(LGCYS, legacy) # Add legacy
                 cards[i] = card + [cards[i][11], embed.image.url]
                 sheet_update(CARDS, cards)
