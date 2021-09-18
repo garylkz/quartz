@@ -48,8 +48,10 @@ def extract(embed) -> list:
     value = embed.fields[0].value.split()
     status, rarity = value if 'Limited' in value else ('', value[0])
     cost = embed.fields[1].value
+    if not cost.isnumeric(): cost = '0'
     power = embed.fields[2].value
-    ppe = '∞' if (cost == '0' or cost == 'null') else str(int(power)//int(cost)) # Frankenstein has 'null'
+    if not power.isnumeric(): power = '0'
+    ppe = '∞' if cost == '0' else str(int(power)//int(cost)) # Frankenstein has 'null'
     ability = description = ''
     if embed.fields[3].name != 'Buffed by':
         ability = embed.fields[3].name
