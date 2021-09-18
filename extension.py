@@ -1,8 +1,4 @@
-import asyncio
-import datetime
-import json
-import os
-import re
+import asyncio, datetime, json, os, re
 from typing import Literal
 
 from discord.ext import commands
