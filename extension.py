@@ -55,7 +55,7 @@ def extract(embed) -> list:
     status, rarity = value if 'Limited' in value else ('', value[0])
     cost = embed.fields[1].value
     power = embed.fields[2].value
-    ppe = '∞' if cost == '0' else str(int(power)//int(cost))
+    ppe = '∞' if (cost == '0' or cost == 'null') else str(int(power)//int(cost)) # Frankenstein has 'null'
     ability = description = ''
     if embed.fields[3].name != 'Buffed by':
         ability = embed.fields[3].name
@@ -89,13 +89,13 @@ async def check(message):
                 sheet_append(LGCYS, legacy) # Add legacy
                 cards[i] = card + [cards[i][11], embed.image.url]
                 sheet_update(CARDS, cards)
-                if not SILENT: await message.channel.send('Update detected.')
+                await message.channel.send('Update detected.')
             else: 
-                if not SILENT: await message.channel.send('Nothing happens.')
+                await message.channel.send('Nothing happens.')
                 if len(cards[i]) == 12: # Update image, temporary
                     cards[i].append(embed.image.url)
                     sheet_update(CARDS, cards)
-                    if not SILENT: await message.channel.send('Oh wait, something did.')
+                    await message.channel.send('Oh wait, something did.')
         else: # Add card
             sheet_append(CARDS, card + [today, embed.image.url])
             sheet_append('Changelog!A:B', [card[2], today])
