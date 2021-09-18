@@ -28,7 +28,7 @@ CARDS = 'Card List!A:M'
 COLS = 'Collection!A:D'
 LGCYS = 'Legacy Cards!A:AZ'
 
-DEBUG = False
+SILENT = False
 
 
 sheet_append = lambda r, b : sheet.values().append(spreadsheetId=ID, range=r, body={'values': [b]}, valueInputOption='USER_ENTERED').execute()
@@ -89,13 +89,13 @@ async def check(message):
                 sheet_append(LGCYS, legacy) # Add legacy
                 cards[i] = card + [cards[i][11], embed.image.url]
                 sheet_update(CARDS, cards)
-                await message.channel.send('Update detected.')
+                if not SILENT: await message.channel.send('Update detected.')
             else: 
-                await message.channel.send('Nothing happens.')
+                if not SILENT: await message.channel.send('Nothing happens.')
                 if len(cards[i]) == 12: # Update image, temporary
                     cards[i].append(embed.image.url)
                     sheet_update(CARDS, cards)
-                    await message.channel.send('Oh wait, something did.')
+                    if not SILENT: await message.channel.send('Oh wait, something did.')
         else: # Add card
             sheet_append(CARDS, card + [today, embed.image.url])
             sheet_append('Changelog!A:B', [card[2], today])
@@ -112,7 +112,7 @@ async def check(message):
             code = re.search('(^[A-Z]+)[0-9]+$', card[10]).group(1)
             sheet_append(COLS, [card[1], card[0], code, today])
             await message.channel.send('Collection detected.')
-        if DEBUG: await message.delete()
+        if SILENT: await message.delete()
 
 
 # @commands.command('requiem')
@@ -130,19 +130,19 @@ async def check(message):
 async def update_image_url(ctx) -> None:
     cards = sheet.values().get(spreadsheetId=ID, range=CARDS).execute().get('values', [])
     updates = []
-    global DEBUG
-    DEBUG = True
+    global SILENT
+    SILENT = True
     for card in cards:
         if len(card) < 13:
             updates.append(card[10])
     l = len(updates)
-    await ctx.send(f'{l} cards to be updated. ({l*20} seconds)')
+    await ctx.send(f'{l} cards to be updated. ({l*20}s)')
     await asyncio.sleep(5)
     for model in updates:
         await ctx.send(f'/find {model}')
         await asyncio.sleep(20)
     await ctx.send('Image url finished updating.')
-    DEBUG = False
+    SILENT = False
 
 
 def setup(bot):
