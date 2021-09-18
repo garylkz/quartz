@@ -111,22 +111,26 @@ async def check(message):
 @commands.command('massupdate')
 async def update_all_cards(ctx) -> None:
     cards = sheet_get(CARDS)
-    await ctx.send(f'{len(cards)*20}s to go.')
-    for card in cards:
-        await ctx.send(f'/find {card[10]}')
-        await asyncio.sleep(20)
+    while len(cards) > 0:
+        await ctx.send(f'{len(cards)} card(s) left.')
+        card = cards.pop(0)
+        await ctx.send(f'`/find {card[10]} (Simulation)`')
+        await asyncio.sleep(60)
     await ctx.send('Finished updating.')
 
 
 @commands.command('image')
 async def update_image_url(ctx) -> None:
-    cards = sheet_get(CARDS)
-    for card in cards: 
+    cards, updates = sheet_get(CARDS), []
+    for card in cards:
         if len(card) < 13:
-            await ctx.send(f'/find {card[10]}')
-            await asyncio.sleep(20)
+            updates.append(card[10])
+    while len(updates) > 0:
+        await ctx.send(f'{len(updates)} card(s) left.')
+        update = updates.pop(0)
+        await ctx.send(f'`/find {update} (Simulation)`')
+        await asyncio.sleep(60)
     await ctx.send('Finished updating.')
-
 
 def setup(bot):
     bot.add_listener(check, 'on_message')
