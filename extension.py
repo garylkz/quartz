@@ -64,10 +64,6 @@ def extract(embed) -> list:
 
 async def check(message):
     if message.author.id != 739553550224588810: return
-    if 'Sorry, unable to process that request' in message.content:
-        await message.send('1 hour cooldown')
-        await asyncio.sleep(60*60)
-        await message.send('Cooldown completed')
     for embed in message.embeds:
         if ( # Embed but not card
             'CUEbot Help' in embed.title or
