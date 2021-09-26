@@ -108,29 +108,44 @@ async def check(message):
             await message.channel.send('Collection detected.')
 
 
+running = True
+
+@commands.command()
+async def halt(ctx) -> None:
+    global running
+    running = False
+
+
 @commands.command('massupdate')
 async def update_all_cards(ctx) -> None:
     cards = sheet_get(CARDS)
-    while len(cards) > 0:
-        await ctx.send(f'{len(cards)} card(s) left.')
+    while len(cards) > 0 and running:
         card = cards.pop(0)
-        await ctx.send(f'`/find {card[10]} (Simulation)`')
-        await asyncio.sleep(60)
-    await ctx.send('Finished updating.')
+        await ctx.send(f'/find {card[10]}')
+        await ctx.send(f'{len(cards)} card(s) left.')
+        await asyncio.sleep(20)
+    else:
+        await ctx.send('Finished updating.')
+        global running
+        running = True
 
 
 @commands.command('image')
 async def update_image_url(ctx) -> None:
-    cards, updates = sheet_get(CARDS), []
+    cards = sheet_get(CARDS)
+    updates = []
     for card in cards:
         if len(card) < 13:
             updates.append(card[10])
-    while len(updates) > 0:
-        await ctx.send(f'{len(updates)} card(s) left.')
+    while len(updates) > 0 and running:
         update = updates.pop(0)
-        await ctx.send(f'`/find {update} (Simulation)`')
-        await asyncio.sleep(60)
-    await ctx.send('Finished updating.')
+        await ctx.send(f'/find {update}')
+        await ctx.send(f'{len(updates)} card(s) left.')
+        await asyncio.sleep(20)
+    else:
+        await ctx.send('Finished updating.')
+        global running
+        running = True
 
 def setup(bot):
     bot.add_listener(check, 'on_message')
