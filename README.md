@@ -1,5 +1,5 @@
 # QCT
-Project not ultra Q, Discord bot's logger bot.
+Project not ultra Q, automation but bad.
 
 ## Purpose
 Automate the process of card data updating from [CUE Cards](https://play.google.com/store/apps/details?id=com.avid.cue) to [CUEniversity](https://docs.google.com/spreadsheets/d/1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo).
