@@ -5,7 +5,7 @@ requirements = open('requirements.txt').read().splitlines()
 
 setuptools.setup(
         name='Project (Not Ultra) Q',
-        version='0.2.8',
+        version='0.2.9',
         author='thisgary',
         author_email='gary.github@gmail.com',
         description='Q Discord bot source code.',
