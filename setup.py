@@ -1,16 +1,16 @@
 import setuptools
 
-# readme = open('README.md').read() 
+readme = open('README.md').read() 
 requirements = open('requirements.txt').read().splitlines()
 
 setuptools.setup(
-        name='Project (Not Ultra) Q',
+        name='Q',
         version='0.2.13',
         author='thisgary',
         author_email='gary.github@gmail.com',
         description='Q Discord bot source code.',
-        # long_description=readme,
-        # long_description_content_type='text/markdown',
+        long_description=readme,
+        long_description_content_type='text/markdown',
         packages=setuptools.find_packages(),
         classifiers=[
             'Programming Language :: Python :: 3',
