@@ -1,22 +1,30 @@
-# QCT
+# Q
+
 Now imagine, automation but bad.
 
 ## Purpose
+
 Automate the process of updating card data from @CUE#3444 and [@CUE_Cards](https://twitter.com/cue_cards) to QCT.
 
 ### CUE Cards
+
 A mobile collectable card game. It was fun.
 
 ### CUEniversity
+
 Community created Google Sheets that contain useful (based) information about the game.
 
-## Features
-This bot can: 
+## TODOs
 
-- [X] Log message from @CUE#3444
-- [X] Filter card data from logged message
-- [X] Semi-automated card data updating
-- [ ] Automated card data updating (Working in Progress)
-- [ ] Hack the game (No, never)
+- [X] Log message from @CUE#3444 (100%)
+- [X] Filter card data from logged message (100%)
+- [X] Semi-automated card data updating (70%)
+- [ ] Twitter API automation intergration (0%)
+- [ ] Discord webhooks automation intergration (0%)
 
-> Note: I don't know whether logging a bot's message is considered illegal.
+Extra:
+
+- [ ] Reduce depency *accordingly* (0%)
+- [ ] Modular code rewrite (0%)
+- [ ] Scheduled sheet backup (0%)
+- [ ] Hack the game (Never)

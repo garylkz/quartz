@@ -151,6 +151,7 @@ async def update_image_url(ctx) -> None:
         await asyncio.sleep(60)
     await ctx.send('Finished updating.')
 
+
 def setup(bot):
     bot.add_listener(check, 'on_message')
     bot.add_command(update_image_url)
