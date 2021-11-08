@@ -50,8 +50,8 @@ def card_album(model: str) -> Literal[
     P = ('P', 'MYPA', 'FPA', 'PEV')
     SC = ('MYSC', 'FSC', 'CEV')
     SP = ('MYSP', 'FSP', 'SEV') 
-
     # old science & space both used 'S' as prefix
+    
     predict = ('Art and Culture' if model.startswith(AC) else
                'History' if model.startswith(E) else
                'Life on Land' if model.startswith(L) else
