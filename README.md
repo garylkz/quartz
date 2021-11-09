@@ -4,13 +4,13 @@ Now imagine, automation but bad.
 
 ## Purpose
 
-Automate the process of updating card data from @CUE#3444 and [@CUE_Cards](https://twitter.com/cue_cards) to QCT.
+Automate the process of updating card data from CUE to QCT.
 
-### CUE Cards
+### CUE
 
 A mobile collectable card game. It was fun.
 
-### CUEniversity
+### QCT
 
 Community created Google Sheets that contain useful (based) information about the game.
 
@@ -18,7 +18,7 @@ Community created Google Sheets that contain useful (based) information about th
 
 - [X] Log message from @CUE#3444 (100%)
 - [X] Filter card data from logged message (100%)
-- [X] Semi-automated card data updating (70%)
+- [X] Semi-automated card data updating (100%)
 - [ ] Twitter API automation intergration (0%)
 - [ ] Discord webhooks automation intergration (0%)
 
