@@ -1,6 +1,6 @@
-# A854C4
+# Amethyst
 
-Now imagine, automation but bad.
+Imagine, automation but bad.
 
 ## Purpose
 

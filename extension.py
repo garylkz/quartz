@@ -12,7 +12,8 @@ SCOPE = [
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file',
     'https://spreadsheets.google.com/feeds',
-    'https://www.googleapis.com/auth/spreadsheets']
+    'https://www.googleapis.com/auth/spreadsheets'
+]
 creds = ServiceAccountCredentials.from_json_keyfile_dict(CREDS, SCOPE)
 service = discovery.build('sheets', 'v4', credentials=creds)
 sheet = service.spreadsheets()

@@ -4,11 +4,11 @@ readme = open('README.md').read()
 requirements = open('requirements.txt').read().splitlines()
 
 setuptools.setup(
-        name='A854C4',
-        version='0.2.99',
+        name='amethyst',
+        version='0.3',
         author='thisgary',
         author_email='gary.github@gmail.com',
-        description='Discord bot @A854C4#1280 source code.',
+        description='Source code of Discord bot @A854C4#1280.',
         long_description=readme,
         long_description_content_type='text/markdown',
         packages=setuptools.find_packages(),
