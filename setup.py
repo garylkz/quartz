@@ -5,10 +5,10 @@ requirements = open('requirements.txt').read().splitlines()
 
 setuptools.setup(
         name='amethyst',
-        version='0.3',
+        version='0.4',
         author='thisgary',
         author_email='gary.github@gmail.com',
-        description='Source code of Discord bot @A854C4#1280.',
+        description='Source code of QCT Discord bot',
         long_description=readme,
         long_description_content_type='text/markdown',
         packages=setuptools.find_packages(),

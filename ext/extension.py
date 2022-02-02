@@ -18,7 +18,8 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(CREDS, SCOPE)
 service = discovery.build('sheets', 'v4', credentials=creds)
 sheet = service.spreadsheets()
 
-ID = os.environ['ID'] if 'ID' in os.environ else ''
+# Sheets API
+ID = os.environ['ID']
 CARDS = 'Card List!A:M' 
 COLS = 'Collection!A:D'
 LGCYS = 'Legacy Cards!A:AZ'
