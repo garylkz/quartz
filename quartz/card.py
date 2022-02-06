@@ -135,7 +135,7 @@ async def update_all_cards(ctx) -> None:
     while len(cards) > 0:
         await ctx.send(f'{len(cards)} card(s) left.')
         card = cards.pop(0)
-        await ctx.send(f'`/find {card[10]}`')
+        await ctx.send(f'/find {card[10]}')
         await asyncio.sleep(60)
     await ctx.send('Finished updating.')
 
