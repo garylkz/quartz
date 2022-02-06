@@ -1,3 +1,3 @@
-git+https://github.com/thisgary/blurple-o
+git+https://github.com/thisgary/nexity
 google-api-python-client
 oauth2client

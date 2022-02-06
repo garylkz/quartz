@@ -1,6 +1,6 @@
-# Amethyst
+# Quartz
 
-Imagine, automation but bad.
+Sheets API & Discord API automation, but bad.
 
 ## Purpose
 

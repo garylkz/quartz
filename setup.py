@@ -4,11 +4,11 @@ readme = open('README.md').read()
 requirements = open('requirements.txt').read().splitlines()
 
 setuptools.setup(
-        name='amethyst',
-        version='0.4',
+        name='quartz',
+        version='',
         author='thisgary',
         author_email='gary.github@gmail.com',
-        description='Source code of QCT Discord bot',
+        description='Sheets API & Discord API Automation',
         long_description=readme,
         long_description_content_type='text/markdown',
         packages=setuptools.find_packages(),

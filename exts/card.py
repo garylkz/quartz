@@ -149,7 +149,7 @@ async def update_image_url(ctx) -> None:
     while len(updates) > 0:
         await ctx.send(f'{len(updates)} card(s) left.')
         update = updates.pop(0)
-        await ctx.send(f'`/find {update}`')
+        await ctx.send(f'/find {update}')
         await asyncio.sleep(60)
     await ctx.send('Finished updating.')
 

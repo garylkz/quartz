@@ -1,13 +1,12 @@
 import os
 from pathlib import Path
-os.environ['CREDS'] = Path('.creds').read_text()
 
-
-import blurpo
+import nexity
 
 
 if __name__ == '__main__':
-    blurpo.load_env()
-    blurpo.load_local('ext.extension')
-    blurpo.run()
+    os.environ['CREDS'] = Path('creds').read_text()
+    nexity.load_env()
+    nexity.load_local('exts.card')
+    nexity.run()
 
