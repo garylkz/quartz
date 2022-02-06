@@ -1,4 +1,5 @@
 import asyncio, datetime, json, os, re
+import logging
 from typing import Literal, List
 
 from discord.ext import commands
@@ -70,9 +71,10 @@ def extract(embed) -> List[str]:
     collection = embed.footer.text
     value = embed.fields[0].value.split()
     status, rarity = value if 'Limited' in value else ('', value[0])
-    cost = embed.fields[1].value
+    date = embed.fields[1].value
+    cost = embed.fields[2].value
     if not cost.isnumeric(): cost = '0'
-    power = embed.fields[2].value
+    power = embed.fields[3].value
     if not power.isnumeric(): power = '0'
     ppe = '∞' if cost == '0' else str(int(power)//int(cost))
     ability = description = ''
@@ -80,7 +82,7 @@ def extract(embed) -> List[str]:
         ability = embed.fields[3].name
         description = embed.fields[3].value
     return [album, collection, name, status, rarity, cost, 
-            power, ppe, ability, description, model]
+            power, ppe, ability, description, model, date]
 
 
 async def check(message) -> None:
@@ -94,14 +96,13 @@ async def check(message) -> None:
             ranges=[CARDS, COLS]).execute().get('valueRanges', [])
         cards, subs = [i['values'] for i in data]
         match, matches = card[10], [i[10] for i in cards]
-        today = str(datetime.date.today())
 
         if match in matches: # Existing card check
             i = matches.index(match)
             existing = cards[i][:11]
             card[3] = existing[3] # Hierarchy
             if card != existing: # Update card
-                legacy = ['Updated'] + existing + card + [today]
+                legacy = ['Updated'] + existing + card
                 sheet_append(LGCYS, legacy) # Add legacy
                 cards[i] = card + [cards[i][11], embed.image.url]
                 sheet_update(CARDS, cards)
@@ -113,8 +114,8 @@ async def check(message) -> None:
                     outcome = 'Something happened.'
                 else: outcome = 'Nothing happens.'
         else: # New card
-            sheet_append(CARDS, card + [today, embed.image.url])
-            sheet_append('Changelog!A:B', [card[2], today])
+            sheet_append(CARDS, card + [embed.image.url])
+            sheet_append('Changelog!A:B', [card[2], card[11]])
             outcome = 'New card detected.'
 
         await asyncio.gather(
@@ -125,7 +126,7 @@ async def check(message) -> None:
             await message.channel.send('Fusion detected.')
         if card[1] not in [i[0] for i in subs]: # New collection
             code = re.search('(^[A-Z]+)[0-9]+$', card[10]).group(1)
-            sheet_append(COLS, [card[1], card[0], code, today])
+            sheet_append(COLS, [card[1], card[0], code, card[11]])
             await message.channel.send('Collection detected.')
 
 
