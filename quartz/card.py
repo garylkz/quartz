@@ -69,20 +69,26 @@ def extract(embed) -> List[str]:
     model, name = embed.title.split(' ', 1)
     album = card_album(model)
     collection = embed.footer.text
-    value = embed.fields[0].value.split()
-    status, rarity = value if 'Limited' in value else ('', value[0])
-    date = embed.fields[1].value
-    cost = embed.fields[2].value
-    if not cost.isnumeric(): cost = '0'
-    power = embed.fields[3].value
-    if not power.isnumeric(): power = '0'
-    ppe = '∞' if cost == '0' else str(int(power)//int(cost))
+
+    rarity, date, cost, power, *values = [i.value for i in embed.fields]
+    status = 'Standard'
+
+    if len(k := rarity.split()) > 1:
+        status, rarity = k
+
+    cost.isnumeric() or cost = '0'
+    power.isnumeric() or power = '0'
+    ppe = '∞' if cost == '0' else str(eval(power + '//' + cost))
+
     ability = description = ''
-    if embed.fields[3].name != 'Buffed by':
-        ability = embed.fields[3].name
-        description = embed.fields[3].value
+    if values: 
+        ability = embed.fields[4].name
+        description = values[0]
+    
+    img = embed.image.url
+
     return [album, collection, name, status, rarity, cost, 
-            power, ppe, ability, description, model, date]
+            power, ppe, ability, description, model, date, img]
 
 
 async def check(message) -> None:
@@ -90,37 +96,36 @@ async def check(message) -> None:
     for embed in message.embeds:
         if ('CUEbot Help' in embed.title or # Embed but not card
             re.search('^Results for "(.+)":.*$', embed.title)): return
+
         card = extract(embed)
         data = sheet.values().batchGet(
             spreadsheetId=ID, 
             ranges=[CARDS, COLS]).execute().get('valueRanges', [])
         cards, subs = [i['values'] for i in data]
-        match, matches = card[10], [i[10] for i in cards]
 
-        if match in matches: # Existing card check
+        model, models = card[10], [i[10] for i in cards]
+        if model in models: # Existing card check
             i = matches.index(match)
-            existing = cards[i][:11]
-            card[3] = existing[3] # Hierarchy
-            if card != existing: # Update card
-                legacy = ['Updated'] + existing + card
+            old = cards[i]
+            card[3] = old[3] # Hierarchy
+            outcome = 'Nothing happens.'
+#            if len(old) < 13:
+#                cards[i].append(embed.image.url)
+#                sheet_update(CARDS, cards)
+#                outcome = 'Something happened.'
+            if card != old: # Update card
+                legacy = ['Updated'] + old[:-2] + card[:-2]
                 sheet_append(LGCYS, legacy) # Add legacy
-                cards[i] = card + [cards[i][11], embed.image.url]
+                cards[i] = card
                 sheet_update(CARDS, cards)
                 outcome = 'Update detected.'
-            else: 
-                if len(cards[i]) == 12: # Card check
-                    cards[i].append(embed.image.url)
-                    sheet_update(CARDS, cards)
-                    outcome = 'Something happened.'
-                else: outcome = 'Nothing happens.'
         else: # New card
-            sheet_append(CARDS, card + [embed.image.url])
+            sheet_append(CARDS, card)
             sheet_append('Changelog!A:B', [card[2], card[11]])
             outcome = 'New card detected.'
 
-        await asyncio.gather(
-            message.delete(),
-            message.channel.send(outcome))
+        await asyncio.gather(message.delete(), message.channel.send(outcome))
+
         if 'Fusion' in card[3]: # Fusion card
             sheet_append('Fusion!A:A', [card[2]])
             await message.channel.send('Fusion detected.')
@@ -129,7 +134,7 @@ async def check(message) -> None:
             sheet_append(COLS, [card[1], card[0], code, card[11]])
             await message.channel.send('Collection detected.')
 
-
+# TODO
 @commands.command('massupdate')
 async def update_all_cards(ctx) -> None:
     cards = sheet_get(CARDS)
