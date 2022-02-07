@@ -76,8 +76,8 @@ def extract(embed) -> List[str]:
     if len(k := rarity.split()) > 1:
         status, rarity = k
 
-    cost.isnumeric() or cost = '0'
-    power.isnumeric() or power = '0'
+    cost.isnumeric() or (cost := '0')
+    power.isnumeric() or (power := '0')
     ppe = '∞' if cost == '0' else str(eval(power + '//' + cost))
 
     ability = description = ''

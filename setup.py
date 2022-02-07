@@ -5,7 +5,7 @@ requirements = open('requirements.txt').read().splitlines()
 
 setuptools.setup(
         name='quartz',
-        version='0.0.9',
+        version='0.0.10',
         author='thisgary',
         author_email='gary.github@gmail.com',
         description='Sheets API & Discord API Automation',
