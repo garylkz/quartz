@@ -105,7 +105,7 @@ async def check(message) -> None:
 
         model, models = card[10], [i[10] for i in cards]
         if model in models: # Existing card check
-            i = matches.index(match)
+            i = models.index(model)
             old = cards[i]
             card[3] = old[3] # Hierarchy
             outcome = 'Nothing happens.'
