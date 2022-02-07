@@ -109,10 +109,10 @@ async def check(message) -> None:
             old = cards[i]
             card[3] = old[3] # Hierarchy
             outcome = 'Nothing happens.'
-#            if len(old) < 13:
-#                cards[i].append(embed.image.url)
-#                sheet_update(CARDS, cards)
-#                outcome = 'Something happened.'
+            if len(old) < 13:
+                cards[i].append(embed.image.url)
+                sheet_update(CARDS, cards)
+                await asyncio.sleep(1)
             if card != old: # Update card
                 legacy = ['Updated'] + old[:-2] + card[:-2]
                 sheet_append(LGCYS, legacy) # Add legacy
@@ -134,33 +134,20 @@ async def check(message) -> None:
             sheet_append(COLS, [card[1], card[0], code, card[11]])
             await message.channel.send('Collection detected.')
 
-# TODO
-@commands.command('massupdate')
-async def update_all_cards(ctx) -> None:
+
+@commands.command('mass')
+async def update_all_cards(ctx, intv: int = 10) -> None:
+    await ctx.send(f'Mass update initiated, interval: {intv}s')
     cards = sheet_get(CARDS)
-    while len(cards) > 0:
-        await ctx.send(f'{len(cards)} card(s) left.')
-        card = cards.pop(0)
-        await ctx.send(f'/find {card[10]}')
-        await asyncio.sleep(60)
-    await ctx.send('Finished updating.')
-
-
-@commands.command('image')
-async def update_image_url(ctx) -> None:
-    cards, updates = sheet_get(CARDS), []
-    for card in cards:
-        if len(card) < 13:
-            updates.append(card[10])
-    while len(updates) > 0:
-        await ctx.send(f'{len(updates)} card(s) left.')
-        update = updates.pop(0)
-        await ctx.send(f'/find {update}')
-        await asyncio.sleep(60)
+    while (k := len(cards)) > 0:
+        await ctx.send(f'{k} card(s) left.')
+        await ctx.send(f'/find {cards[0][10]}')
+        del cards[0]
+        await asyncio.sleep(intv)
     await ctx.send('Finished updating.')
 
 
 def setup(bot):
     bot.add_listener(check, 'on_message')
-    bot.add_command(update_image_url)
     bot.add_command(update_all_cards)
+
