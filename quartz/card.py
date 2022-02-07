@@ -136,7 +136,10 @@ async def check(message) -> None:
 
 
 @commands.command('mass')
-async def update_all_cards(ctx, intv: int = 10) -> None:
+async def update_all_cards(ctx, intv: int = 20) -> None:
+    if intv < 20:
+        await ctx.send('*Angry CUE bot noises (min 20s)*')
+        return
     await ctx.send(f'Mass update initiated, interval: {intv}s')
     cards = sheet_get(CARDS)
     while (k := len(cards)) > 0:
