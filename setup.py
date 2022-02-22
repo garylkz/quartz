@@ -1,11 +1,13 @@
+from pathlib import Path
 import setuptools
 
-readme = open('README.md').read() 
-requirements = open('requirements.txt').read().splitlines()
+
+readme = Path('README.md').read_text()
+requirements = Path('requirements.txt').read_text().splitlines()
 
 setuptools.setup(
         name='quartz',
-        version='0.0.12',
+        version='0.0.13',
         author='thisgary',
         author_email='gary.github@gmail.com',
         description='Sheets API & Discord API Automation',
