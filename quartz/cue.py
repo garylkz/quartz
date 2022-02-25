@@ -1,3 +1,4 @@
+import logging
 import requests
 from typing import List, Union
 
@@ -18,4 +19,9 @@ def get_card_updates(since: int) -> List[dict]:
     session = requests.Session()
     g = lambda x : session.get(f'{API}/{x}').json()
     codes = g(f'updateList/{since}')
-    return [g(f'detail/{c}') for c in codes]
+    logging.info(f'{len(codes)} card(s)')
+    cards = []
+    for i in range(len(codes)):
+        logging.info(f'{codes[i]}:{i}')
+        cards.append(g(f'detail/{codes[i]}'))
+    return cards
