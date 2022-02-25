@@ -112,9 +112,8 @@ def extract_card(pl: dict) -> List[str]:
 
 
 def update_cards(cards: List[dict]) -> None:
-    logging.info('update_cards')
-
     Q_CARDS = get(CARDS) 
+    Q_COLS = set(get(COLS))
     q_cards = Q_CARDS.copy()
     new_legacies = []
     new_fusions = []
@@ -138,7 +137,7 @@ def update_cards(cards: List[dict]) -> None:
             if card[3] == FUSE: 
                 new_fusions.append([card[1]])
             # Collection
-            if not any(card[3] == j[0] for j in get(COLS)): 
+            if not any(card[3] == j[0] for j in Q_COLS): 
                 _img = c['collectionImage']
                 img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
                 col = [card[3], c['collectionCode'], card[11], img]
