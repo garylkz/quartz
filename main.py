@@ -3,12 +3,11 @@ if __name__ == '__main__':
     import os
     from pathlib import Path
 
-    import nexity
-
-
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     os.environ['CREDS'] = Path('creds.json').read_text()
 
-    nexity.load_env()
-    nexity.load_local('quartz.card')
-    nexity.run()
+
+    from quartz import qct
+
+    qct.mass_update()
+
