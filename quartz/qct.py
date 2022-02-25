@@ -89,7 +89,9 @@ def extract_card(pl: dict) -> List[str]:
         title = pl['abilityTitle']
         ability = pl['abilityPlaintextV2']
         ability = re.sub(':power:', '⚡', ability)
+        ability = re.sub(':power/turn:', '⚡/turn', ability)
         ability = re.sub(':energy:', '🔋', ability)
+        ability = re.sub(':energy/turn:', '🔋/turn', ability)
         ability = re.sub(':lock:', '🔒 ', ability)
         ability = re.sub(':burn:', '🔥 ', ability)
         ability = re.sub(':return:', '↩️ ', ability)
@@ -111,7 +113,7 @@ def extract_card(pl: dict) -> List[str]:
             img]
 
 
-def update_cards(cards: List[dict]) -> None:
+def update_cards(cards: List[dict], *, silent: bool = False) -> None:
     Q_CARDS = get(CARDS) 
     Q_COLS = get(COLS)
     q_cards = Q_CARDS.copy()
@@ -128,7 +130,8 @@ def update_cards(cards: List[dict]) -> None:
         logging.info(f'{card[0]}:{card[1]}')
         for i in range(len(q_cards)): # Update card
             if q_cards[i][0] == card[0]:
-                # new_legacies.append(['Updated'] + q_cards[i] + card)
+                if not silent:
+                    new_legacies.append(['Updated'] + q_cards[i] + card)
                 q_cards[i] = card
                 break
         else: # New card
@@ -155,5 +158,5 @@ def update_cards(cards: List[dict]) -> None:
     fd.write()
 
 
-def mass_update() -> None:
-    update_cards(cue.get_card_updates(1574969089362))
+def mass_update(*, silent: bool = False) -> None:
+    update_cards(cue.get_card_updates(1574969089362), silent=silent)
