@@ -3,6 +3,8 @@ import json
 import logging
 import os
 import re
+from threading import Thread
+import time
 from typing import List, Union
 
 from dumpster import fdict
@@ -25,10 +27,21 @@ CARDS = 'Card List!A:N'
 COLS = 'Collection!A:D'
 FUSE = 'Fusion'
 LGCYS = 'Legacy Cards!A:AZ'
+DEF_SUBS = {
+    ':power:': '⚡',
+    ':power/turn:': '⚡/turn',
+    ':energy:': '🔋',
+    ':energy/turn:': '🔋/turn',
+    ':lock:': '🔒 ',
+    ':burn:': '🔥 ',
+    ':return:': '↩️ ',
+    ':play:': '▶️ ',
+    ':draw:': '⬆️ '
+}
 
 
 # Variables
-fd = fdict(epoch=0)
+fd = fdict(epoch=0, subs=DEF_SUBS)
 
 
 # Authentication
@@ -88,15 +101,8 @@ def extract_card(pl: dict) -> List[str]:
     if pl['abilityTitle'] is not None: 
         title = pl['abilityTitle']
         ability = pl['abilityPlaintextV2']
-        ability = re.sub(':power:', '⚡', ability)
-        ability = re.sub(':power/turn:', '⚡/turn', ability)
-        ability = re.sub(':energy:', '🔋', ability)
-        ability = re.sub(':energy/turn:', '🔋/turn', ability)
-        ability = re.sub(':lock:', '🔒 ', ability)
-        ability = re.sub(':burn:', '🔥 ', ability)
-        ability = re.sub(':return:', '↩️ ', ability)
-        ability = re.sub(':play:', '▶️ ', ability)
-        ability = re.sub(':draw:', '⬆️ ', ability)
+        for p in fd['subs']:
+            ability = re.sub(p, fd['subs'][p], ability)
 
     pull = to_datetime(pl['firstPull'])
     modified = to_datetime(pl['modifiedDate'])
@@ -122,7 +128,8 @@ def update_cards(cards: List[dict], *, silent: bool = False) -> None:
     new_collections = []
 
     for c in cards:
-        epoch = int(c['modifiedDate'])
+        e = str(c['modifiedDate'])
+        epoch = int(e) if e.isnumeric() else 0
         if epoch > fd['epoch']:
             fd['epoch'] = epoch
 
@@ -145,6 +152,13 @@ def update_cards(cards: List[dict], *, silent: bool = False) -> None:
                 img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
                 col = [card[3], c['collectionCode'], card[11], img]
                 new_collections.append(col)
+            # Log
+            if not any(card[3] == j[0] for j in Q_COLS): 
+                _img = c['collectionImage']
+                img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
+                col = [card[3], c['collectionCode'], card[11], img]
+                new_collections.append(col)
+
 
     if Q_CARDS != q_cards: 
         update(CARDS, q_cards) 
@@ -160,3 +174,12 @@ def update_cards(cards: List[dict], *, silent: bool = False) -> None:
 
 def mass_update(*, silent: bool = False) -> None:
     update_cards(cue.get_card_updates(1574969089362), silent=silent)
+
+
+def scheduled_update(interval: int = 60*60*24, silent: bool = True) -> None:
+    def start():
+        while True:
+            cards = cue.get_card_updates(fd['epoch'])
+            update_cards(cards, silent=silent)
+            time.sleep(interval)
+    Thread(target=start).start()
