@@ -51,9 +51,10 @@ sheet = service.spreadsheets()
 
 
 # Functions
-def get(range: str) -> List[List[str]]:
-    return sheet.values().get(
-        spreadsheetId=ID, range=range).execute().get('values', [])
+def get(ranges: List[str]) -> List[List[str]]:
+    ranges = sheet.values().batchGet(
+        spreadsheetId=ID, ranges=ranges).execute()['valueRanges']
+    return [r['values'] for r in ranges]
 
 
 def append(range: str, body: List[List[str]]) -> None:
@@ -120,16 +121,16 @@ def extract_card(pl: dict) -> List[str]:
 
 
 def update_cards(cards: List[dict], *, silent: bool = False) -> None:
-    Q_CARDS = get(CARDS) 
-    Q_COLS = get(COLS)
+    Q_CARDS, Q_COLS = get([CARDS, COLS]) 
     q_cards = Q_CARDS.copy()
+    q_cols = Q_COLS.copy()
+    changelogs = []
+    dyks = []
     new_legacies = []
     new_fusions = []
-    new_collections = []
 
     for c in cards:
-        e = str(c['modifiedDate'])
-        epoch = int(e) if e.isnumeric() else 0
+        epoch = int(c['modifiedDate']) 
         if epoch > fd['epoch']:
             fd['epoch'] = epoch
 
@@ -143,31 +144,29 @@ def update_cards(cards: List[dict], *, silent: bool = False) -> None:
                 break
         else: # New card
             q_cards.append(card)
+            changelogs.append([card[1], card[12]])
             # Fusion
             if card[3] == FUSE: 
                 new_fusions.append([card[1]])
             # Collection
-            if not any(card[3] == j[0] for j in Q_COLS): 
+            if not any(card[3] == j[0] for j in q_cols): 
                 _img = c['collectionImage']
                 img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
-                col = [card[3], c['collectionCode'], card[11], img]
-                new_collections.append(col)
-            # Log
-            if not any(card[3] == j[0] for j in Q_COLS): 
-                _img = c['collectionImage']
-                img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
-                col = [card[3], c['collectionCode'], card[11], img]
-                new_collections.append(col)
-
+                col = [card[3], c['collectionCode'], card[12], img]
+                q_cols.append(col)
 
     if Q_CARDS != q_cards: 
         update(CARDS, q_cards) 
+    if dyks: 
+        append('Do You Know', dyks)
+    if changelogs: 
+        append('Changelog', changelogs)
     if new_legacies: 
         append(LGCYS, new_legacies)
     if new_fusions: 
         append(FUSE, new_fusions)
-    if new_collections: 
-        append(COLS, new_collections)
+    if Q_COLS != q_cols: 
+        update(COLS, q_cols) 
     
     fd.write()
 
