@@ -24,9 +24,8 @@ SCOPE = [
 IMG = 'https://cdn-virttrade-assets-eucalyptus.cloud.virttrade.com/filekey'
 ID = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo' 
 CARDS = 'Card List!A:N'
-COLS = 'Collection!A:D'
+COLS = 'Collection!B:E'
 FUSE = 'Fusion'
-LGCYS = 'Legacy Cards!A:AZ'
 DEF_SUBS = {
     ':power:': '⚡',
     ':power/turn:': '⚡/turn',
@@ -122,12 +121,8 @@ def extract_card(pl: dict) -> List[str]:
 
 def update_cards(cards: List[dict], *, silent: bool = False) -> None:
     Q_CARDS, Q_COLS = get([CARDS, COLS]) 
-    q_cards = Q_CARDS.copy()
-    q_cols = Q_COLS.copy()
-    changelogs = []
-    dyks = []
-    new_legacies = []
-    new_fusions = []
+    q_cards, q_cols = Q_CARDS.copy(), Q_COLS.copy()
+    changelogs, dyks, legacies, fusions = ([] for _ in range(4))
 
     for c in cards:
         epoch = int(c['modifiedDate']) 
@@ -139,34 +134,28 @@ def update_cards(cards: List[dict], *, silent: bool = False) -> None:
         for i in range(len(q_cards)): # Update card
             if q_cards[i][0] == card[0]:
                 if not silent:
-                    new_legacies.append(['Updated'] + q_cards[i] + card)
+                    legacies.append(['Updated'] + q_cards[i] + card)
                 q_cards[i] = card
                 break
         else: # New card
             q_cards.append(card)
-            changelogs.append([card[1], card[12]])
+            dyks.append([c['name'], c['dyk']])
             # Fusion
             if card[3] == FUSE: 
-                new_fusions.append([card[1]])
+                fusions.append([card[1]])
             # Collection
             if not any(card[3] == j[0] for j in q_cols): 
                 _img = c['collectionImage']
                 img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
-                col = [card[3], c['collectionCode'], card[12], img]
-                q_cols.append(col)
+                q_cols.append([c['collectionCode'], card[3], card[11], img])
+        changelogs.append([c['name'], c['firstPull']])
 
-    if Q_CARDS != q_cards: 
-        update(CARDS, q_cards) 
-    if dyks: 
-        append('Do You Know', dyks)
-    if changelogs: 
-        append('Changelog', changelogs)
-    if new_legacies: 
-        append(LGCYS, new_legacies)
-    if new_fusions: 
-        append(FUSE, new_fusions)
-    if Q_COLS != q_cols: 
-        update(COLS, q_cols) 
+    if Q_CARDS != q_cards: update(CARDS, q_cards) 
+    if Q_COLS != q_cols: update(COLS, q_cols) 
+    if dyks: append('Do You Know', dyks)
+    if changelogs: append('Changelog', changelogs)
+    if legacies: append('Legacy Cards', legacies)
+    if fusions: append(FUSE, fusions)
     
     fd.write()
 
@@ -176,9 +165,9 @@ def mass_update(*, silent: bool = False) -> None:
 
 
 def scheduled_update(interval: int = 60*60*24, silent: bool = True) -> None:
-    def start():
+    def schedule():
         while True:
             cards = cue.get_card_updates(fd['epoch'])
             update_cards(cards, silent=silent)
             time.sleep(interval)
-    Thread(target=start).start()
+    Thread(target=schedule).start()
