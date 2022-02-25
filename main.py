@@ -9,4 +9,4 @@ if __name__ == '__main__':
 
     from quartz import qct
 
-    qct.mass_update()
+    qct.scheduled_update()
