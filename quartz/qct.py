@@ -113,7 +113,7 @@ def extract_card(pl: dict) -> List[str]:
 
 def update_cards(cards: List[dict]) -> None:
     Q_CARDS = get(CARDS) 
-    Q_COLS = set(get(COLS))
+    Q_COLS = get(COLS)
     q_cards = Q_CARDS.copy()
     new_legacies = []
     new_fusions = []
