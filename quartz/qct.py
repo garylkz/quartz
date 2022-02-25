@@ -76,9 +76,9 @@ def extract_card(pl: dict) -> List[str]:
     if len(k := rarity.split()) > 1:
         type_, rarity = k
 
-    e = pl['energy']
+    e = str(pl['energy'])
     energy = e if e.isnumeric() else '0'
-    p = pl['power']
+    p = str(pl['power'])
     power = p if p.isnumeric() else '0'
     ppe = '∞'
     if energy != '0': 
@@ -121,9 +121,9 @@ def update_cards(cards: List[dict]) -> None:
     new_collections = []
 
     for c in cards:
-        if (e := int(c['modifiedDate'])) > fd['epoch']:
-            fd['epoch'] = e
-            fd.write()
+        epoch = int(c['modifiedDate'])
+        if epoch > fd['epoch']:
+            fd['epoch'] = epoch
 
         card = extract_card(c)
         logging.info(f'{card[0]}:{card[1]}')
@@ -152,6 +152,8 @@ def update_cards(cards: List[dict]) -> None:
         append(FUSE, new_fusions)
     if new_collections: 
         append(COLS, new_collections)
+    
+    fd.write()
 
 
 def mass_update() -> None:
