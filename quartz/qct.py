@@ -13,6 +13,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 from quartz import cue
 
+
+__all__ = ['mass_update', 'scheduled_update']
+
+
 # Constants
 CREDS = json.loads(os.environ['CREDS'])
 SCOPE = [
@@ -25,6 +29,7 @@ IMG = 'https://cdn-virttrade-assets-eucalyptus.cloud.virttrade.com/filekey'
 ID = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo' 
 CARDS = 'Card List!A:N'
 COLS = 'Collection!B:E'
+DYKS = 'Do You Know'
 FUSE = 'Fusion'
 DEF_SUBS = {
     ':power:': '⚡',
@@ -119,10 +124,11 @@ def extract_card(pl: dict) -> List[str]:
             img]
 
 
-def update_cards(cards: List[dict], *, silent: bool = False) -> None:
-    Q_CARDS, Q_COLS = get([CARDS, COLS]) 
-    q_cards, q_cols = Q_CARDS.copy(), Q_COLS.copy()
-    changelogs, dyks, legacies, fusions = ([] for _ in range(4))
+def update_cards(cards: List[dict], legacy: bool = True) -> None:
+    Q_CARDS, Q_COLS, Q_DYKS = get([CARDS, COLS, DYKS]) 
+    q_cards = Q_CARDS.copy()
+    cols, dyks = Q_COLS.copy(), Q_DYKS.copy()
+    logs, legacies, fusions = ([] for _ in range(3))
 
     for c in cards:
         epoch = int(c['modifiedDate']) 
@@ -130,44 +136,58 @@ def update_cards(cards: List[dict], *, silent: bool = False) -> None:
             fd['epoch'] = epoch
 
         card = extract_card(c)
-        logging.info(f'{card[0]}:{card[1]}')
+        dyk = [c['name'], c['dyk']]
         for i in range(len(q_cards)): # Update card
-            if q_cards[i][0] == card[0]:
-                if not silent:
-                    legacies.append(['Updated'] + q_cards[i] + card)
+            if card[0] == q_cards[i][0]:
                 q_cards[i] = card
+                if dyk != dyks[i]:
+                    dyks[i] = dyk
+                if legacy:
+                    legacies.append(['Updated'] + q_cards[i] + card)
                 break
         else: # New card
             q_cards.append(card)
-            dyks.append([c['name'], c['dyk']])
+            dyks.append(dyk)
             # Fusion
             if card[3] == FUSE: 
                 fusions.append([card[1]])
             # Collection
-            if not any(card[3] == j[0] for j in q_cols): 
+            if not any(card[3] == j[0] for j in cols): 
                 _img = c['collectionImage']
                 img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
-                q_cols.append([c['collectionCode'], card[3], card[11], img])
-        changelogs.append([c['name'], c['firstPull']])
+                cols.append([c['collectionCode'], card[3], card[11], img])
+        logs.append([c['name'], c['modifiedDate']])
 
-    if Q_CARDS != q_cards: update(CARDS, q_cards) 
-    if Q_COLS != q_cols: update(COLS, q_cols) 
-    if dyks: append('Do You Know', dyks)
-    if changelogs: append('Changelog', changelogs)
-    if legacies: append('Legacy Cards', legacies)
-    if fusions: append(FUSE, fusions)
+    if Q_CARDS != q_cards: 
+        update(CARDS, q_cards) 
+        logging.info(f'UPDATED {len(cards)} CARD(S)')
+    if Q_COLS != cols: 
+        update(COLS, cols) 
+        logging.info(f'UPDATED {len(cols)} COLLECTION(S)')
+    if Q_DYKS != dyks: 
+        update(DYKS, dyks) 
+        logging.info(f'UPDATED {len(dyks)} DYK(S)')
+    if logs: 
+        append('Changelog', logs)
+        logging.info(f'ADDED {len(logs)} LOG(S)')
+    if legacies: 
+        append('Legacy Cards', legacies)
+        logging.info(f'ADDED {len(legacies)} LEGACY(S)')
+    if fusions: 
+        append(FUSE, fusions)
+        logging.info(f'ADDED {len(fusions)} FUSION(S)')
     
     fd.write()
 
 
-def mass_update(*, silent: bool = False) -> None:
-    update_cards(cue.get_card_updates(1574969089362), silent=silent)
+def mass_update(legacy: bool = False) -> None:
+    update_cards(cue.get_card_updates(1574969089362), legacy=legacy)
 
 
-def scheduled_update(interval: int = 60*60*24, silent: bool = True) -> None:
+def scheduled_update(interval: int = 60*60*24, legacy: bool = True) -> None:
     def schedule():
         while True:
             cards = cue.get_card_updates(fd['epoch'])
-            update_cards(cards, silent=silent)
+            update_cards(cards, legacy=legacy)
             time.sleep(interval)
     Thread(target=schedule).start()
