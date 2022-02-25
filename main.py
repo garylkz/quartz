@@ -3,11 +3,10 @@ if __name__ == '__main__':
     import os
     from pathlib import Path
 
+    from quartz import qct
+
+
     logging.basicConfig(level=logging.INFO)
     os.environ['CREDS'] = Path('creds.json').read_text()
 
-
-    from quartz import qct
-
     qct.mass_update()
-
