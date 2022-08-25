@@ -140,8 +140,11 @@ def update_cards(cards: List[dict], legacy: bool = True) -> None:
         for i in range(len(q_cards)): # Update card
             if card[0] == q_cards[i][0]:
                 q_cards[i] = card
-                if dyk != dyks[i]:
-                    dyks[i] = dyk
+                try:
+                    if dyk != dyks[i]:
+                        dyks[i] = dyk
+                except IndexError: 
+                    dyks.append(dyk)
                 if legacy:
                     legacies.append(['Updated'] + q_cards[i] + card)
                 break
