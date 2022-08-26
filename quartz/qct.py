@@ -201,7 +201,7 @@ def update_schedule(*, interval: int = 60*60*24, thread: bool = False) -> None:
         while True:
             update_epoch()
             time.sleep(interval)
-    
+            
     if thread: 
         Thread(target=f).start()
     else: 
