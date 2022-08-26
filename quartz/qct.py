@@ -158,10 +158,11 @@ def cards_update(cards: List[dict], legacy: bool = True) -> None:
             if card[3] == FUSE: 
                 fusions.append([card[1]])
             # Collection TODO: bugfix
-            # if not any(card[3] == j[0] for j in cols):
-            #     _img = c['collectionImage']
-            #     img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
-            #     cols.append([c['collectionCode'], card[3], card[11], img])
+            if not any(card[3] == j[0] for j in cols):
+                logging.info(f'New collection: {card[3]}')
+                # _img = c['collectionImage']
+                # img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
+                # cols.append([c['collectionCode'], card[3], card[11], img])
         logs.append([c['name'], c['modifiedDate']])
 
     if Q_CARDS != q_cards: 
@@ -201,7 +202,7 @@ def update_schedule(*, interval: int = 60*60*24, thread: bool = False) -> None:
         while True:
             update_epoch()
             time.sleep(interval)
-            
+
     if thread: 
         Thread(target=f).start()
     else: 
