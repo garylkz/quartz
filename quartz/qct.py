@@ -7,7 +7,6 @@ from threading import Thread
 import time
 from typing import List, Union
 
-from dumpster import fdict
 from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -45,7 +44,11 @@ DEF_SUBS = {
 
 
 # Variables
-fd = fdict(epoch=1574969089362, subs=DEF_SUBS)
+try:
+    data = json.load(open('data.json'))
+except FileNotFoundError:
+    data = {'epoch': 1574969089362, 'subs': DEF_SUBS}
+    json.dump(data, open('data.json', 'w'))
 
 
 # Authentication
@@ -55,20 +58,20 @@ sheet = service.spreadsheets()
 
 
 # Functions
-def get(ranges: List[str]) -> List[List[str]]:
+def sheet_get(ranges: List[str]) -> List[List[str]]:
     ranges = sheet.values().batchGet(
         spreadsheetId=ID, ranges=ranges).execute()['valueRanges']
     return [r['values'] for r in ranges]
 
 
-def append(range: str, body: List[List[str]]) -> None:
+def sheet_append(range: str, body: List[List[str]]) -> None:
     return sheet.values().append(
         spreadsheetId=ID, range=range, 
         body={'values': body}, 
         valueInputOption='USER_ENTERED').execute()
 
 
-def update(range: str, body: List[List[str]]) -> None:
+def sheet_update(range: str, body: List[List[str]]) -> None:
     return sheet.values().update(
         spreadsheetId=ID, range=range, 
         body={'values': body}, 
@@ -106,8 +109,8 @@ def extract_card(pl: dict) -> List[str]:
     if pl['abilityTitle'] is not None: 
         title = pl['abilityTitle']
         ability = pl['abilityPlaintextV2']
-        for p in fd['subs']:
-            ability = re.sub(p, fd['subs'][p], ability)
+        for p in data['subs']:
+            ability = re.sub(p, data['subs'][p], ability)
 
     pull = to_datetime(pl['firstPull'])
     modified = to_datetime(pl['modifiedDate'])
@@ -125,15 +128,15 @@ def extract_card(pl: dict) -> List[str]:
 
 
 def update_cards(cards: List[dict], legacy: bool = True) -> None:
-    Q_CARDS, Q_COLS, Q_DYKS = get([CARDS, COLS, DYKS]) 
+    Q_CARDS, Q_COLS, Q_DYKS = sheet_get([CARDS, COLS, DYKS]) 
     q_cards = Q_CARDS.copy()
     cols, dyks = Q_COLS.copy(), Q_DYKS.copy()
     logs, legacies, fusions = ([] for _ in range(3))
 
     for c in cards:
         epoch = int(c['modifiedDate']) 
-        if epoch > fd['epoch']:
-            fd['epoch'] = epoch
+        if epoch > data['epoch']:
+            data['epoch'] = epoch
 
         card = extract_card(c)
         dyk = [c['name'], c['dyk']]
@@ -162,25 +165,25 @@ def update_cards(cards: List[dict], legacy: bool = True) -> None:
         logs.append([c['name'], c['modifiedDate']])
 
     if Q_CARDS != q_cards: 
-        update(CARDS, q_cards) 
+        sheet_update(CARDS, q_cards) 
         logging.info(f'UPDATED {len(cards)} CARD(S)')
     if Q_COLS != cols: 
-        update(COLS, cols) 
+        sheet_update(COLS, cols) 
         logging.info(f'UPDATED {len(cols)} COLLECTION(S)')
     if Q_DYKS != dyks: 
-        update(DYKS, dyks) 
+        sheet_update(DYKS, dyks) 
         logging.info(f'UPDATED {len(dyks)} DYK(S)')
     if logs: 
-        append('Changelog', logs)
+        sheet_append('Changelog', logs)
         logging.info(f'ADDED {len(logs)} LOG(S)')
     if legacies: 
-        append('Legacy Cards', legacies)
+        sheet_append('Legacy Cards', legacies)
         logging.info(f'ADDED {len(legacies)} LEGACY(S)')
     if fusions: 
-        append(FUSE, fusions)
+        sheet_append(FUSE, fusions)
         logging.info(f'ADDED {len(fusions)} FUSION(S)')
     
-    fd.write()
+    data.write()
 
 
 def mass_update(legacy: bool = False) -> None:
@@ -190,7 +193,7 @@ def mass_update(legacy: bool = False) -> None:
 def scheduled_update(interval: int = 60*60*24, blocking: bool = False) -> None:
     def schedule():
         while True:
-            cards = cue.get_card_updates(fd['epoch'])
-            update_cards(cards, legacy=legacy)
+            cards = cue.get_card_updates(data['epoch'])
+            update_cards(cards, legacy=True)
             time.sleep(interval)
     schedule() if blocking else Thread(target=schedule).start()
