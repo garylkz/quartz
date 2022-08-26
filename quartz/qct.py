@@ -85,7 +85,7 @@ def to_datetime(ms: Union[str, int]) -> str:
     return dt.strftime("%d/%m/%Y %H:%M:%S")
 
 
-def extract_card(pl: dict) -> List[str]:
+def card_extract(pl: dict) -> List[str]:
     code = pl['code']
     name = pl['name']
 
@@ -127,7 +127,7 @@ def extract_card(pl: dict) -> List[str]:
             img]
 
 
-def update_cards(cards: List[dict], legacy: bool = True) -> None:
+def cards_update(cards: List[dict], legacy: bool = True) -> None:
     Q_CARDS, Q_COLS, Q_DYKS = sheet_get([CARDS, COLS, DYKS]) 
     q_cards = Q_CARDS.copy()
     cols, dyks = Q_COLS.copy(), Q_DYKS.copy()
@@ -138,7 +138,7 @@ def update_cards(cards: List[dict], legacy: bool = True) -> None:
         if epoch > data['epoch']:
             data['epoch'] = epoch
 
-        card = extract_card(c)
+        card = card_extract(c)
         dyk = [c['name'], c['dyk']]
         for i in range(len(q_cards)): # Update card
             if card[0] == q_cards[i][0]:
@@ -157,11 +157,11 @@ def update_cards(cards: List[dict], legacy: bool = True) -> None:
             # Fusion
             if card[3] == FUSE: 
                 fusions.append([card[1]])
-            # Collection
-            if not any(card[3] == j[0] for j in cols): # TODO: bugfix
-                _img = c['collectionImage']
-                img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
-                cols.append([c['collectionCode'], card[3], card[11], img])
+            # Collection TODO: bugfix
+            # if not any(card[3] == j[0] for j in cols):
+            #     _img = c['collectionImage']
+            #     img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
+            #     cols.append([c['collectionCode'], card[3], card[11], img])
         logs.append([c['name'], c['modifiedDate']])
 
     if Q_CARDS != q_cards: 
@@ -186,14 +186,23 @@ def update_cards(cards: List[dict], legacy: bool = True) -> None:
     data.write()
 
 
-def mass_update(legacy: bool = False) -> None:
-    update_cards(cue.get_card_updates(1574969089362), legacy=legacy)
+def update_all(legacy: bool = False) -> None:
+    cards = cue.get_card_updates(1574969089362)
+    cards_update(cards, legacy=legacy)
 
 
-def scheduled_update(interval: int = 60*60*24, blocking: bool = False) -> None:
-    def schedule():
+def update_epoch() -> None:
+    cards = cue.get_card_updates(data['epoch'])
+    cards_update(cards)
+
+
+def update_schedule(*, interval: int = 60*60*24, thread: bool = False) -> None:
+    def f():
         while True:
-            cards = cue.get_card_updates(data['epoch'])
-            update_cards(cards, legacy=True)
+            update_epoch()
             time.sleep(interval)
-    schedule() if blocking else Thread(target=schedule).start()
+    
+    if thread: 
+        Thread(target=f).start()
+    else: 
+        f()
