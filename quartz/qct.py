@@ -45,7 +45,7 @@ DEF_SUBS = {
 
 
 # Variables
-fd = fdict(epoch=0, subs=DEF_SUBS)
+fd = fdict(epoch=1574969089362, subs=DEF_SUBS)
 
 
 # Authentication
@@ -155,7 +155,7 @@ def update_cards(cards: List[dict], legacy: bool = True) -> None:
             if card[3] == FUSE: 
                 fusions.append([card[1]])
             # Collection
-            if not any(card[3] == j[0] for j in cols): # TODO: debug
+            if not any(card[3] == j[0] for j in cols): # TODO: bugfix
                 _img = c['collectionImage']
                 img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
                 cols.append([c['collectionCode'], card[3], card[11], img])
@@ -187,8 +187,7 @@ def mass_update(legacy: bool = False) -> None:
     update_cards(cue.get_card_updates(1574969089362), legacy=legacy)
 
 
-def scheduled_update(*, interval: int = 60*60*24, 
-        legacy: bool = True, blocking: bool = False) -> None:
+def scheduled_update(interval: int = 60*60*24, blocking: bool = False) -> None:
     def schedule():
         while True:
             cards = cue.get_card_updates(fd['epoch'])
