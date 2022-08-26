@@ -155,7 +155,7 @@ def update_cards(cards: List[dict], legacy: bool = True) -> None:
             if card[3] == FUSE: 
                 fusions.append([card[1]])
             # Collection
-            if not any(card[3] == j[0] for j in cols): 
+            if not any(card[3] == j[0] for j in cols): # TODO: debug
                 _img = c['collectionImage']
                 img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
                 cols.append([c['collectionCode'], card[3], card[11], img])
@@ -187,10 +187,11 @@ def mass_update(legacy: bool = False) -> None:
     update_cards(cue.get_card_updates(1574969089362), legacy=legacy)
 
 
-def scheduled_update(interval: int = 60*60*24, legacy: bool = True) -> None:
+def scheduled_update(*, interval: int = 60*60*24, 
+        legacy: bool = True, blocking: bool = False) -> None:
     def schedule():
         while True:
             cards = cue.get_card_updates(fd['epoch'])
             update_cards(cards, legacy=legacy)
             time.sleep(interval)
-    Thread(target=schedule).start()
+    schedule() if blocking else Thread(target=schedule).start()
