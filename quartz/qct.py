@@ -50,10 +50,10 @@ DEF_SUBS = {
 
 # Variables
 try:
-    data = json.load(open('data.json'))
+    data = json.load(open('data.json'), ensure_ascii=False)
 except FileNotFoundError:
     data = {'epoch': 1574969089362, 'subs': DEF_SUBS}
-    json.dump(data, open('data.json', 'w'))
+    json.dump(data, open('data.json', 'w'), ensure_ascii=False)
 
 
 # Authentication
@@ -189,7 +189,7 @@ def cards_update(cards: List[dict], legacy: bool = True) -> None:
         sheet_append(FUSE, fusions)
         logging.info(f'ADDED {len(fusions)} FUSION(S)')
     
-    data.write()
+    json.dump(data, open('data.json'), ensure_ascii=False)
 
 
 def update_all(legacy: bool = False) -> None:
