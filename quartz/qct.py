@@ -50,10 +50,10 @@ DEF_SUBS = {
 
 # Variables
 try:
-    data = json.load(open('data.json'), ensure_ascii=False)
+    data = json.load(open('data.json'))
 except FileNotFoundError:
     data = {'epoch': 1574969089362, 'subs': DEF_SUBS}
-    json.dump(data, open('data.json', 'w'))
+    json.dump(data, open('data.json', 'w'), ensure_ascii=False)
 
 
 # Authentication
