@@ -28,10 +28,10 @@ DEF_SUBS = {
 
 # Variables
 try:
-    data = json.load(open('data.json'))
+    data = json.load(open('data.json', encoding='utf-8'))
 except FileNotFoundError:
     data = {'epoch': 1574969089362, 'subs': DEF_SUBS}
-    json.dump(data, open('data.json', 'w'), ensure_ascii=False)
+    json.dump(data, open('data.json', 'w', encoding='utf-8'), ensure_ascii=False)
 
 
 def to_datetime(ms: Union[str, int]) -> str:
@@ -140,4 +140,4 @@ def update(cards: List[dict], legacy: bool = True) -> None:
         sheet.append(FUSE, fusions)
         logging.info(f'ADDED {len(fusions)} FUSION(S)')
     
-    json.dump(data, open('data.json', 'w'), ensure_ascii=False)
+    json.dump(data, open('data.json', 'w', encoding='utf-8'), ensure_ascii=False)

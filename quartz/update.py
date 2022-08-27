@@ -4,13 +4,14 @@ import time
 
 from quartz import api, card
 
+
 def all(legacy: bool = False) -> None:
     cards = api.get_update_cards(1574969089362)
     card.update(cards, legacy=legacy)
 
 
 def epoch() -> None:
-    data = json.load(open('data.json'))
+    data = json.load(open('data.json', encoding='utf-8'))
     cards = api.get_update_cards(data['epoch'])
     card.update(cards)
 
