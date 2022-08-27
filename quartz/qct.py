@@ -189,7 +189,7 @@ def cards_update(cards: List[dict], legacy: bool = True) -> None:
         sheet_append(FUSE, fusions)
         logging.info(f'ADDED {len(fusions)} FUSION(S)')
     
-    json.dump(data, open('data.json'), ensure_ascii=False)
+    json.dump(data, open('data.json', 'w'), ensure_ascii=False)
 
 
 def update_all(legacy: bool = False) -> None:
