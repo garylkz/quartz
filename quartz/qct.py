@@ -1,36 +1,19 @@
 from datetime import datetime
 import json
 import logging
-import os
 import re
 from threading import Thread
 import time
 from typing import List, Union
 
-from googleapiclient import discovery
-from oauth2client.service_account import ServiceAccountCredentials
-
-from quartz import api
+from quartz import api, sheet
 
 
 __all__ = ['mass_update', 'scheduled_update']
 
 
 # Constants
-try:
-    CREDS = json.load(open('creds.json'))
-except FileNotFoundError:
-    CREDS = json.loads(os.environ['CREDS'])
-except OSError:
-    raise Exception('Based, creds.json not found, CREDS not in os.environ')
-SCOPE = [
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/drive.file',
-    'https://spreadsheets.google.com/feeds',
-    'https://www.googleapis.com/auth/spreadsheets'
-]
-IMG = 'https://cdn-virttrade-assets-eucalyptus.cloud.virttrade.com/filekey'
-ID = '1JL8Vfyj4uRVx6atS5njJxL03dpKFkgBu74u-h0kTNSo' 
+IMG = 'https://cdn-virttrade-assets-eucalyptus.cloud.virttrade.com/filekey' 
 CARDS = 'Card List!A:N'
 COLS = 'Collection!B:E'
 DYKS = 'Do You Know'
@@ -54,33 +37,6 @@ try:
 except FileNotFoundError:
     data = {'epoch': 1574969089362, 'subs': DEF_SUBS}
     json.dump(data, open('data.json', 'w'), ensure_ascii=False)
-
-
-# Authentication
-creds = ServiceAccountCredentials.from_json_keyfile_dict(CREDS, SCOPE)
-service = discovery.build('sheets', 'v4', credentials=creds)
-sheet = service.spreadsheets()
-
-
-# Functions
-def sheet_get(ranges: List[str]) -> List[List[str]]:
-    ranges = sheet.values().batchGet(
-        spreadsheetId=ID, ranges=ranges).execute()['valueRanges']
-    return [r['values'] for r in ranges]
-
-
-def sheet_append(range: str, body: List[List[str]]) -> None:
-    return sheet.values().append(
-        spreadsheetId=ID, range=range, 
-        body={'values': body}, 
-        valueInputOption='USER_ENTERED').execute()
-
-
-def sheet_update(range: str, body: List[List[str]]) -> None:
-    return sheet.values().update(
-        spreadsheetId=ID, range=range, 
-        body={'values': body}, 
-        valueInputOption='USER_ENTERED').execute()
 
 
 def to_datetime(ms: Union[str, int]) -> str:
@@ -133,7 +89,7 @@ def card_extract(pl: dict) -> List[str]:
 
 
 def cards_update(cards: List[dict], legacy: bool = True) -> None:
-    Q_CARDS, Q_COLS, Q_DYKS = sheet_get([CARDS, COLS, DYKS]) 
+    Q_CARDS, Q_COLS, Q_DYKS = sheet.get([CARDS, COLS, DYKS]) 
     q_cards = Q_CARDS.copy()
     cols, dyks = Q_COLS.copy(), Q_DYKS.copy()
     logs, legacies, fusions = ([] for _ in range(3))
@@ -171,22 +127,22 @@ def cards_update(cards: List[dict], legacy: bool = True) -> None:
         logs.append([c['name'], c['modifiedDate']])
 
     if Q_CARDS != q_cards: 
-        sheet_update(CARDS, q_cards) 
+        sheet.update(CARDS, q_cards) 
         logging.info(f'UPDATED {len(cards)} CARD(S)')
     if Q_COLS != cols: 
-        sheet_update(COLS, cols) 
+        sheet.update(COLS, cols) 
         logging.info(f'UPDATED {len(cols)} COLLECTION(S)')
     if Q_DYKS != dyks: 
-        sheet_update(DYKS, dyks) 
+        sheet.update(DYKS, dyks) 
         logging.info(f'UPDATED {len(dyks)} DYK(S)')
     if logs: 
-        sheet_append('Changelog', logs)
+        sheet.append('Changelog', logs)
         logging.info(f'ADDED {len(logs)} LOG(S)')
     if legacies: 
-        sheet_append('Legacy Cards', legacies)
+        sheet.append('Legacy Cards', legacies)
         logging.info(f'ADDED {len(legacies)} LEGACY(S)')
     if fusions: 
-        sheet_append(FUSE, fusions)
+        sheet.append(FUSE, fusions)
         logging.info(f'ADDED {len(fusions)} FUSION(S)')
     
     json.dump(data, open('data.json', 'w'), ensure_ascii=False)
