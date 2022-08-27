@@ -53,7 +53,7 @@ try:
     data = json.load(open('data.json'), ensure_ascii=False)
 except FileNotFoundError:
     data = {'epoch': 1574969089362, 'subs': DEF_SUBS}
-    json.dump(data, open('data.json', 'w'), ensure_ascii=False)
+    json.dump(data, open('data.json', 'w'))
 
 
 # Authentication
