@@ -33,7 +33,7 @@ def get_updates(since: int) -> List[str]:
     return get(f'updateList/{since}')
 
 
-def get_card_updates(since: int, size: int = 500) -> List[dict]:
+def get_update_cards(since: int, size: int = 500) -> List[dict]:
     codes = get_updates(since)
     logging.info(f'{len(codes)} card(s)')
     return get_cards(codes, size)

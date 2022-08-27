@@ -10,7 +10,7 @@ from typing import List, Union
 from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
 
-from quartz import cue
+from quartz import api
 
 
 __all__ = ['mass_update', 'scheduled_update']
@@ -193,12 +193,12 @@ def cards_update(cards: List[dict], legacy: bool = True) -> None:
 
 
 def update_all(legacy: bool = False) -> None:
-    cards = cue.get_card_updates(1574969089362)
+    cards = api.get_update_cards(1574969089362)
     cards_update(cards, legacy=legacy)
 
 
 def update_epoch() -> None:
-    cards = cue.get_card_updates(data['epoch'])
+    cards = api.get_update_cards(data['epoch'])
     cards_update(cards)
 
 
