@@ -1,3 +1,2 @@
-nexity @ git+https://github.com/thisgary/nexity@main
 google-api-python-client
 oauth2client
