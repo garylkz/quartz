@@ -17,7 +17,12 @@ __all__ = ['mass_update', 'scheduled_update']
 
 
 # Constants
-CREDS = json.loads(os.environ['CREDS'])
+try:
+    CREDS = json.load(open('creds.json'))
+except FileNotFoundError:
+    CREDS = json.loads(os.environ['CREDS'])
+except OSError:
+    raise Exception('Based, creds.json not found, CREDS not in os.environ')
 SCOPE = [
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file',
