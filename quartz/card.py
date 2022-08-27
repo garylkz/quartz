@@ -2,14 +2,9 @@ from datetime import datetime
 import json
 import logging
 import re
-from threading import Thread
-import time
 from typing import List, Union
 
-from quartz import api, sheet
-
-
-__all__ = ['mass_update', 'scheduled_update']
+from quartz import sheet
 
 
 # Constants
@@ -46,7 +41,7 @@ def to_datetime(ms: Union[str, int]) -> str:
     return dt.strftime("%d/%m/%Y %H:%M:%S")
 
 
-def card_extract(pl: dict) -> List[str]:
+def extract(pl: dict) -> List[str]:
     code = pl['code']
     name = pl['name']
 
@@ -88,7 +83,7 @@ def card_extract(pl: dict) -> List[str]:
             img]
 
 
-def cards_update(cards: List[dict], legacy: bool = True) -> None:
+def update(cards: List[dict], legacy: bool = True) -> None:
     Q_CARDS, Q_COLS, Q_DYKS = sheet.get([CARDS, COLS, DYKS]) 
     q_cards = Q_CARDS.copy()
     cols, dyks = Q_COLS.copy(), Q_DYKS.copy()
@@ -99,7 +94,7 @@ def cards_update(cards: List[dict], legacy: bool = True) -> None:
         if epoch > data['epoch']:
             data['epoch'] = epoch
 
-        card = card_extract(c)
+        card = extract(c)
         dyk = [c['name'], c['dyk']]
         for i in range(len(q_cards)): # Update card
             if card[0] == q_cards[i][0]:
@@ -146,25 +141,3 @@ def cards_update(cards: List[dict], legacy: bool = True) -> None:
         logging.info(f'ADDED {len(fusions)} FUSION(S)')
     
     json.dump(data, open('data.json', 'w'), ensure_ascii=False)
-
-
-def update_all(legacy: bool = False) -> None:
-    cards = api.get_update_cards(1574969089362)
-    cards_update(cards, legacy=legacy)
-
-
-def update_epoch() -> None:
-    cards = api.get_update_cards(data['epoch'])
-    cards_update(cards)
-
-
-def update_schedule(*, interval: int = 60*60*24, thread: bool = False) -> None:
-    def f():
-        while True:
-            update_epoch()
-            time.sleep(interval)
-
-    if thread: 
-        Thread(target=f).start()
-    else: 
-        f()

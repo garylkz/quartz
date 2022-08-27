@@ -47,4 +47,3 @@ def update(range: str, body: List[List[str]]) -> None:
         spreadsheetId=ID, range=range, 
         body={'values': body}, 
         valueInputOption='USER_ENTERED').execute()
-
