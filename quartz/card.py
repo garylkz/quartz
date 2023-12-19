@@ -34,9 +34,24 @@ except FileNotFoundError:
     json.dump(data, open('data.json', 'w', encoding='utf-8'), ensure_ascii=False)
 
 
-def to_datetime(ms: Union[str, int]) -> str:
+def to_datetime(ms: Union[str, int], debug_card: dict) -> str:
     dt = datetime.utcfromtimestamp(ms/1000.0)
     return dt.strftime("%d/%m/%Y %H:%M:%S")
+
+def vali_date(card: dict):
+    if card['firstPull'] is None: 
+        pull = to_datetime(card['modifiedDate'])
+        logging.debug(f"{card['code']} is missing first pull date, if it is not 'Crafted', contact the dev")
+    else: 
+        pull = to_datetime(card['firstPull'])
+    
+    if card['modifiedDate'] is None: 
+        modified = '-'
+        logging.debug(f"{card['code']} is missing modified date, this is impossible, contact the dev")
+    else: 
+        modified = to_datetime(card['modifiedDate'])
+    
+    return (pull, modified)
 
 
 def extract(pl: dict) -> List[str]:
@@ -66,16 +81,7 @@ def extract(pl: dict) -> List[str]:
         for p in data['subs']:
             ability = re.sub(p, data['subs'][p], ability)
 
-    if pl['firstPull'] is None:
-        pull = '-'
-        print(code, 'firstPull:', pl['firstPull'])
-    else: 
-        pull = to_datetime(pl['firstPull'])
-    if pl['modifiedDate'] is None:
-        modified = '-'
-        print(code, 'modifiedDate:', pl['modifiedDate'])
-    else: 
-        modified = to_datetime(pl['modifiedDate'])
+    pull, modified = vali_date(pl)
 
     _img = pl['img'] 
     img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
