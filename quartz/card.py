@@ -35,8 +35,10 @@ except FileNotFoundError:
 
 
 def to_datetime(ms: Union[str, int]) -> str:
-    if isinstance(ms, str):
+    if isinstance(ms, str) and ms.isdigit():
         ms = int(ms)
+    else: 
+        raise Exception(f'datetime parse error: {ms}')
     dt = datetime.utcfromtimestamp(ms/1000.0)
     return dt.strftime("%d/%m/%Y %H:%M:%S")
 
