@@ -35,7 +35,6 @@ except FileNotFoundError:
 
 
 def to_datetime(ms: Union[str, int]) -> str:
-    print()
     dt = datetime.utcfromtimestamp(ms/1000.0)
     return dt.strftime("%d/%m/%Y %H:%M:%S")
 
@@ -67,11 +66,16 @@ def extract(pl: dict) -> List[str]:
         for p in data['subs']:
             ability = re.sub(p, data['subs'][p], ability)
 
-    try:
+    if pl['firstPull'] is None:
+        pull = '-'
+        print(code, 'firstPull:', pl['firstPull'])
+    else: 
         pull = to_datetime(pl['firstPull'])
+    if pl['modifiedDate'] is None:
+        modified = '-'
+        print(code, 'modifiedDate:', pl['modifiedDate'])
+    else: 
         modified = to_datetime(pl['modifiedDate'])
-    except TypeError:
-        raise Exception(f"{code}: date parsing error, firstPull: {pl['firstPull']}, modifiedDate: {pl['modifiedDate']}")
 
     _img = pl['img'] 
     img = f'{IMG}/{_img[0:2]}/{_img[2:4]}/{_img[4:]}'
