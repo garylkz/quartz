@@ -35,7 +35,7 @@ except FileNotFoundError:
 
 
 def to_datetime(ms: Union[str, int]) -> str:
-    if isinstance(ms, str) and ms.isdigit():
+    if ms.isdigit():
         ms = int(ms)
     else: 
         raise Exception(f'datetime parse error: {ms}')
